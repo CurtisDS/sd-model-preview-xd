@@ -48,7 +48,10 @@ tags_ext_pattern = r'tags'
 img_ext_pattern = r'(?:png|jpg|jpeg|webp|jxk|avif)'
 all_ext_pattern = r'(?:' + html_ext_pattern + r'|' + md_ext_pattern + r'|' + txt_ext_pattern + r'|' + tags_ext_pattern + r'|' + img_ext_pattern + r')'
 
-def is_subdirectory(parent_dir, child_dir):
+def is_subdirectory(parent_dir, child_path):
+	# get the directory of the child path
+	child_dir = os.path.dirname(child_path)
+
 	# checks if the child directory is actually a child directory of the parent directory
 	parent_dir = os.path.abspath(os.path.realpath(parent_dir))
 	child_dir = os.path.abspath(os.path.realpath(child_dir))
@@ -72,7 +75,7 @@ def is_dir_in_list(dir_list, check_dir):
 
 def natural_order_number(s):
 	# split a string into segments of strings and ints that will be used to sort naturally
-    return [int(x) if x.isdigit() else x.lower() for x in re.split('(\d+)', s)]
+	return [int(x) if x.isdigit() else x.lower() for x in re.split('(\d+)', s)]
 
 def clean_modelname(modelname):
 	# convert the extension to lowercase if it exists
@@ -240,8 +243,8 @@ def filter_choices(choices, filter, tags_obj):
 		# filter the choices based on the provided filter string
 		filter_tags = [tag.strip().lower() for tag in filter.split(",")]
 		filtered_choices = [choice for choice in filtered_choices if 
-                              all(tag in tags_obj.get(choice, '').lower() for tag in filter_tags) or 
-                              all(tag in choice.lower() for tag in filter_tags)]
+							all(tag in tags_obj.get(choice, '').lower() for tag in filter_tags) or 
+							all(tag in choice.lower() for tag in filter_tags)]
 	return filtered_choices
 
 def filter_models(filter=None):
@@ -425,7 +428,7 @@ def search_and_display_previews(model_name, paths):
 					is_in_a1111_dir = is_subdirectory(current_directory, file_path)
 					img_file = None
 					if shared.opts.model_preview_xd_name_matching == "Index":
-						if (index_models_pattern is not None and  index_models_pattern.match(filename)) or filename.lower() == "index.txt":
+						if (index_models_pattern is not None and index_models_pattern.match(filename)) or filename.lower() == "index.txt":
 							# ignore preview files that strictly match any of the other models in the index file
 							continue
 						if index_has_model:
