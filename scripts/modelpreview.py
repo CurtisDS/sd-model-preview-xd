@@ -396,9 +396,6 @@ def search_and_display_previews(model_name, paths):
 
 	# support the ability to check multiple paths
 	for path in paths:
-		# check if the path is a subdirectory of the install directory
-		is_in_a1111_dir = is_subdirectory(current_directory, path)
-
 		# loop through all files in the path and any subdirectories
 		for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
 			# get a list of all parent directories
@@ -424,6 +421,8 @@ def search_and_display_previews(model_name, paths):
 				# check each file to see if it is a preview file
 				for filename in sorted_filenames:
 					file_path = os.path.join(dirpath, filename)
+					# check if the path is a subdirectory of the install directory
+					is_in_a1111_dir = is_subdirectory(current_directory, file_path)
 					img_file = None
 					if shared.opts.model_preview_xd_name_matching == "Index":
 						if (index_models_pattern is not None and  index_models_pattern.match(filename)) or filename.lower() == "index.txt":
