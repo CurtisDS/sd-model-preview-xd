@@ -1,6 +1,7 @@
 import os
 import os.path
 import re
+import urllib
 import gradio as gr
 from modules import script_callbacks, sd_models, shared, sd_hijack
 from PIL import Image
@@ -295,8 +296,10 @@ def find_choice(list, name):
 
 def create_html_iframe(file, is_in_a1111_dir):
 	if is_in_a1111_dir:
+		# escape special URL characters from the filename
+		encoded_file_path = urllib.parse.quote(file, safe='/:\\')
 		# create the iframe html code
-		html_code = f'<iframe src="file={file}"></iframe>'
+		html_code = f'<iframe src="file={encoded_file_path}"></iframe>'
 	else:
 		html_code = ""
 		# the html file isnt located in the a1111 directory so load the html file as a base64 string instead of linking to it
@@ -324,10 +327,10 @@ def create_html_img(file, is_in_a1111_dir):
 		order = int(image_number.group(1)) if image_number else 0
 
 	if is_in_a1111_dir:
-		# replace the file name string spaces with %20 so the path will work
-		space_replace = file.replace(" ","%20")
+		# escape special URL characters from the filename
+		encoded_file_path = urllib.parse.quote(file, safe='/:\\')
 		# create the html for the image
-		html_code = f'<div class="img-container" style="order:{order}"><img src=file={space_replace} onclick="imageZoomIn(event)" />'
+		html_code = f'<div class="img-container" style="order:{order}"><img src=file={encoded_file_path} onclick="imageZoomIn(event)" />'
 	else:
 		# linking to the image wont work so convert it to a base64 byte string
 		with open(file, "rb") as img_file:
