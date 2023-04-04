@@ -63,7 +63,9 @@ This extension supports the following model types in the the default directories
 
           ![screenshot of extra networks card link to preview](https://user-images.githubusercontent.com/20732674/216813283-2e4f874f-3afa-4088-98eb-95bff0566ec8.png)
 
-5. <a name="tips-5"></a>In the settings for the extension you can turn off the "limit height" setting to change how tall the preview panel can be.
+5. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
+      
+      ***Note**: An update to gradio has caused an issue that cuts off the model select dropdown when using the `limit height` option so it has been removed for now. If I can get it to work again I will bring it back.*
 
       ![screenshot of difference between limit height and not limit height](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd-height-limit.gif)
 
