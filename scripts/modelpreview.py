@@ -48,17 +48,19 @@ tags_ext_pattern = r'tags'
 img_ext_pattern = r'(?:png|jpg|jpeg|webp|jxk|avif)'
 all_ext_pattern = r'(?:' + html_ext_pattern + r'|' + md_ext_pattern + r'|' + txt_ext_pattern + r'|' + tags_ext_pattern + r'|' + img_ext_pattern + r')'
 
-def is_subdirectory(parent_dir, child_path):
+def is_in_directory(parent_dir, child_path):
 	# get the directory of the child path
 	child_dir = os.path.dirname(child_path)
 
-	# checks if the child directory is actually a child directory of the parent directory
+	# get the absolute paths of both directories
 	parent_dir = os.path.abspath(os.path.realpath(parent_dir))
 	child_dir = os.path.abspath(os.path.realpath(child_dir))
 
+	# return false if either directory is not a valid directory
 	if not os.path.isdir(parent_dir) or not os.path.isdir(child_dir):
 		return False
 
+	# get the common prefix of the paths to see if the child dir is in the parent
 	common_prefix = os.path.commonprefix([parent_dir, child_dir])
 	return common_prefix == parent_dir and child_dir != parent_dir
 
@@ -108,7 +110,6 @@ def search_for_tags(model_names, model_tags, paths):
 		for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
 			# get a list of all parent directories
 			directories = dirpath.split(os.path.sep)
-
 
 			index_models = []
 			if shared.opts.model_preview_xd_name_matching == "Index":
@@ -425,7 +426,7 @@ def search_and_display_previews(model_name, paths):
 				for filename in sorted_filenames:
 					file_path = os.path.join(dirpath, filename)
 					# check if the path is a subdirectory of the install directory
-					is_in_a1111_dir = is_subdirectory(current_directory, file_path)
+					is_in_a1111_dir = is_in_directory(current_directory, file_path)
 					img_file = None
 					if shared.opts.model_preview_xd_name_matching == "Index":
 						if (index_models_pattern is not None and index_models_pattern.match(filename)) or filename.lower() == "index.txt":
@@ -709,7 +710,7 @@ def on_ui_tabs():
 def on_ui_settings():
 	section = ('model_preview_xd', "Model Preview XD")
 	shared.opts.add_option("model_preview_xd_name_matching", shared.OptionInfo("Loose", "Name matching rule for preview files", gr.Radio, {"choices": ["Loose", "Strict", "Folder", "Index"]}, section=section))
-	shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window (.html preview files are always limited regardless of this setting)", section=section))
+	# shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window (.html preview files are always limited regardless of this setting)", section=section)) # this option broke with the new gradio, will always act as FALSE now to avoid issues
 
 script_callbacks.on_ui_settings(on_ui_settings)
 script_callbacks.on_ui_tabs(on_ui_tabs)

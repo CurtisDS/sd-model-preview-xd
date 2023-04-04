@@ -1,5 +1,5 @@
 
-.gradio-container > .flex > div.mx-auto.container {
+.gradio-container > .flex > div.mx-auto.container, div.main > div.wrap > div.contain {
 	display: flex;
 }
 
@@ -9,14 +9,23 @@
 
 .extra-network-thumbs .card .actions .additional a.info {
 	left: unset;
-	right: 2px;
+	right: -3px;
 	background: none;
-	font-size: 19pt;
+	font-size: 18pt;
 	color: white;
 	text-shadow: 0px 0px 5px black;
-	top: 2px;
+	top: -3px;
 	user-select: all;
 }
+
+.extra-network-cards .card .metadata-button, .extra-network-thumbs .card .metadata-button {
+	padding: 0;
+	font-size: 17pt;
+	width: 1em;
+	right: calc(50% - 0.5em);
+	height: 1em;
+	top: -3px;
+  }
 
 .extra-network-cards .card .actions:hover .additional{
     display: flex;
@@ -28,16 +37,18 @@
 	flex: 1;
 }
 
+#tab_modelpreview_xd_interface code {
+	overflow: auto;
+}
+
 #tab_modelpreview_xd_interface:not([limit-height]) > div {
+	position: relative;
 	height: 100%;
 }
 
 #tab_modelpreview_xd_interface[limit-height] > div {
-	position: absolute;
-	top: 5px;
-	bottom: 5px;
-	right: 5px;
-	left: 5px;
+	position: relative;
+	height: 100%;
 }
 
 #tab_modelpreview_xd_interface #modelpreview_xd_setting {
@@ -45,13 +56,12 @@
 }
 
 #tab_modelpreview_xd_interface > div > .tabs {
-	overflow: hidden;
 	height: 100%;
+	max-height: 100%;
 }
 
 #tab_modelpreview_xd_interface > div > .tabs > .tabitem {
 	flex: 1;
-	overflow: hidden;
 }
 
 #tab_modelpreview_xd_interface > div > .tabs > .tabitem > div {
@@ -70,6 +80,10 @@
 #tab_modelpreview_xd_interface #em_modelpreview_xd_html_div > .transition,
 #tab_modelpreview_xd_interface #hn_modelpreview_xd_html_div > .transition,
 #tab_modelpreview_xd_interface #lo_modelpreview_xd_html_div > .transition,
+#tab_modelpreview_xd_interface #cp_modelpreview_xd_html_div > div:nth-of-type(2),
+#tab_modelpreview_xd_interface #em_modelpreview_xd_html_div > div:nth-of-type(2),
+#tab_modelpreview_xd_interface #hn_modelpreview_xd_html_div > div:nth-of-type(2),
+#tab_modelpreview_xd_interface #lo_modelpreview_xd_html_div > div:nth-of-type(2),
 #tab_modelpreview_xd_interface #cp_modelpreview_xd_html_div,
 #tab_modelpreview_xd_interface #em_modelpreview_xd_html_div,
 #tab_modelpreview_xd_interface #hn_modelpreview_xd_html_div,

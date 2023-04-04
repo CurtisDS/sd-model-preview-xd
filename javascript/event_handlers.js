@@ -208,7 +208,7 @@ onUiUpdate(function() {
 
       // build out a new <ul> and <a> tag for linking to the preview tab
       let ul = document.createElement("ul");
-      ul.innerHTML = `<a href="#" onclick="doCardClick(event, '${modelName}', '${modelToSelect}')" title="Go To Preview" target="_blank" class="info">ⓘ</a>`;
+      ul.innerHTML = `<a href="#" onclick="doCardClick(event, '${modelName}', '${modelToSelect}')" title="Go To Preview" target="_blank" class="info">℗</a>`;
       card.append(ul);
       card.setAttribute("preview-hijack", true);
     });
