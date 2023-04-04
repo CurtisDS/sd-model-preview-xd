@@ -605,7 +605,7 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text")
 			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model")
 		with gr.Row():
-			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False)
+			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row"):
 			with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_flexcolumn_row"):
 				preview_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_html_div", visible=False)
