@@ -677,7 +677,10 @@ def on_ui_tabs():
 	# create a gradio block
 	with gr.Blocks() as modelpreview_interface:
 
-		gr.HTML(elem_id='modelpreview_xd_setting', value='<script id="modelpreview_xd_setting_json" type="application/json">{ "LimitSize": ' + ( "true" if shared.opts.model_preview_xd_limit_sizing else "false" ) + ' }</script>', visible=False)
+		# limitHeight = shared.opts.model_preview_xd_limit_sizing # this option broke with the new gradio, will always act as FALSE now to avoid issues
+		limitHeight = False
+
+		gr.HTML(elem_id='modelpreview_xd_setting', value='<script id="modelpreview_xd_setting_json" type="application/json">{ "LimitSize": ' + ( "true" if limitHeight else "false" ) + ' }</script>', visible=False)
 
 		# create a tab for the checkpoint previews
 		create_tab("Checkpoints", "cp",
