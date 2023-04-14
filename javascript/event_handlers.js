@@ -200,6 +200,10 @@ onUiUpdate(function() {
         case "img2img_lora_cards":
           modelToSelect = "Lora";
         break;
+        case "txt2img_lycoris_cards":
+        case "img2img_lycoris_cards":
+          modelToSelect = "LyCORIS";
+        break;
         case "txt2img_checkpoints_cards":
         case "img2img_checkpoints_cards":
           modelToSelect = "Checkpoints";
@@ -240,6 +244,10 @@ function doCardClick(event, name, modelType) {
           case "Lora":
             modelNameID = "lo_modelpreview_xd_update_sd_model_text";
             modelUpdateID = "lo_modelpreview_xd_update_sd_model";
+          break;
+          case "LyCORIS":
+            modelNameID = "ly_modelpreview_xd_update_sd_model_text";
+            modelUpdateID = "ly_modelpreview_xd_update_sd_model";
           break;
           case "Embeddings":
             modelNameID = "em_modelpreview_xd_update_sd_model_text";
