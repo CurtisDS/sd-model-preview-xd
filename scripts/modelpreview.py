@@ -234,13 +234,12 @@ def list_all_loras():
 	search_for_tags(lora_choices, tags["loras"], get_lora_dirs())
 	return lora_choices
 
-
 def list_all_lycorii():
 	global lycoris_choices, lycoris_module
-	# create an empty set for lycora models
+	# create an empty set for lycoris models
 	lycorii = set()
 
-	# import/update the lycora module
+	# import/update the lycoris module
 	lycoris_module = import_lycoris_module()
 	if lycoris_module is not None:
 		# copy the list of models
@@ -280,10 +279,9 @@ def refresh_loras(choice = None, filter = None):
 	lora_choices = list_all_loras()
 	return filter_loras(filter), *show_lora_preview(choice)
 
-
 def refresh_lycorii(choice = None, filter = None):
 	global lycoris_choices
-	# update the choices for the lora list
+	# update the choices for the lycoris list
 	lycoris_choices = list_all_lycorii()
 	return filter_lycorii(filter), *show_lycoris_preview(choice)
 
@@ -313,7 +311,6 @@ def filter_loras(filter=None):
 	filtered_lora_choices = filter_choices(lora_choices, filter, tags["loras"])
 	return gr.Dropdown.update(choices=filtered_lora_choices)
 
-
 def filter_lycorii(filter=None):
 	filtered_lycoris_choices = filter_choices(lycoris_choices, filter, tags["lycoris"])
 	return gr.Dropdown.update(choices=filtered_lycoris_choices)
@@ -337,7 +334,6 @@ def update_lora(name):
 	# update the selected preview for lora tab
 	new_choice = find_choice(lora_choices, name)
 	return new_choice, *show_lora_preview(new_choice)
-
 
 def update_lycorii(name):
 	# update the selected preview for LyCORIS tab
@@ -598,8 +594,17 @@ def get_lycoris_dirs():
 	# create list of directories
 	directories = []
 
+	# add directories from the third party lycoris extension if exists
 	if lycoris_module is not None:
-		directories.append(shared.cmd_opts.lyco_dir)
+		# add models/lora just in case to the list of directories
+		default_dir = os.path.join("models","LyCORIS") # models/Lora
+		if os.path.exists(default_dir) and os.path.isdir(default_dir):
+			directories.append(default_dir)
+		# add directories from the third party lycoris extension if exists
+		set_dir = shared.cmd_opts.lyco_dir
+		if set_dir is not None and not is_dir_in_list(directories, set_dir):
+			# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
+			directories.append(set_dir)
 
 	return directories
 
@@ -673,22 +678,22 @@ def show_preview(modelname, paths, tags_key):
 
 def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, refresh_fn, update_selected_fn):
 	# create a tab for model previews
-	with gr.Tab(tab_label, elem_id=f"model_preview_xd_{tab_label.lower()}_tab"):
-		with gr.Row():
-			list = gr.Dropdown(label="Model", choices=list_choices, interactive=True, elem_id=f"{tab_id_key}_mp2_preview_model_list")
-			filter_input = gr.Textbox(label="Filter", value="")
-		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_hidden_ui"):
-			refresh_list = gr.Button(value=refresh_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_refresh_sd_model")
-			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text")
-			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model")
-		with gr.Row():
-			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area")
-		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row"):
-			with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_flexcolumn_row"):
-				preview_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_html_div", visible=False)
-				preview_md = gr.Markdown(elem_id=f"{tab_id_key}_modelpreview_xd_markdown_div", visible=False)
-		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_tags_row"):
-			preview_tags = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_tags_div", visible=False)
+	with gr.Tab(tab_label, elem_id=f"model_preview_xd_{tab_label.lower()}_tab", elem_classes="model_preview_xd_tab"):
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_control_row", elem_classes="modelpreview_xd_control_row"):
+			list = gr.Dropdown(label="Model", choices=list_choices, interactive=True, elem_id=f"{tab_id_key}_mp2_preview_model_list", elem_classes="mp2_preview_model_list")
+			filter_input = gr.Textbox(label="Filter", value="", elem_id=f"{tab_id_key}_modelpreview_xd_filter_text", elem_classes="modelpreview_xd_filter_text")
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_hidden_ui", elem_classes="modelpreview_xd_hidden_ui"):
+			refresh_list = gr.Button(value=refresh_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_refresh_sd_model", elem_classes="modelpreview_xd_refresh_sd_model")
+			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text", elem_classes="modelpreview_xd_update_sd_model_text")
+			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model", elem_classes="modelpreview_xd_update_sd_model")
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_notes_row", elem_classes="modelpreview_xd_notes_row"):
+			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area", elem_classes="modelpreview_xd_update_sd_model_text_area")
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row", elem_classes="modelpreview_xd_html_row"):
+			with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_flexcolumn_row", elem_classes="modelpreview_xd_flexcolumn_row"):
+				preview_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_html_div", elem_classes="modelpreview_xd_html_div", visible=False)
+				preview_md = gr.Markdown(elem_id=f"{tab_id_key}_modelpreview_xd_markdown_div", elem_classes="modelpreview_xd_markdown_div", visible=False)
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_tags_row", elem_classes="modelpreview_xd_tags_row"):
+			preview_tags = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_tags_div", elem_classes="modelpreview_xd_tags_div", visible=False)
 
 	list.change(
 		fn=show_preview_fn,
@@ -747,7 +752,6 @@ def on_ui_tabs():
 	# import/update the lora module
 	additional_networks = import_lora_module()
 	additional_networks_builtin = import_lora_module_builtin()
-
 	lycoris_module = import_lycoris_module()
 
 	# create a gradio block
