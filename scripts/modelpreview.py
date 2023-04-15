@@ -721,24 +721,24 @@ def show_preview(modelname, paths, tags_key):
 
 def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, refresh_fn, update_selected_fn):
 	# create a tab for model previews
-	with gr.Tab(tab_label, elem_id=f"model_preview_xd_{tab_label.lower()}_tab"):
-		with gr.Row():
-			list = gr.Dropdown(label="Model", choices=list_choices, interactive=True, elem_id=f"{tab_id_key}_mp2_preview_model_list")
-			filter_input = gr.Textbox(label="Filter", value="")
-		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_hidden_ui"):
-			refresh_list = gr.Button(value=refresh_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_refresh_sd_model")
-			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text")
-			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model")
+	with gr.Tab(tab_label, elem_id=f"model_preview_xd_{tab_label.lower()}_tab", elem_classes="model_preview_xd_tab"):
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_control_row", elem_classes="modelpreview_xd_control_row"):
+			list = gr.Dropdown(label="Model", choices=list_choices, interactive=True, elem_id=f"{tab_id_key}_mp2_preview_model_list", elem_classes="mp2_preview_model_list")
+			filter_input = gr.Textbox(label="Filter", value="", elem_id=f"{tab_id_key}_modelpreview_xd_filter_text", elem_classes="modelpreview_xd_filter_text")
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_hidden_ui", elem_classes="modelpreview_xd_hidden_ui"):
+			refresh_list = gr.Button(value=refresh_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_refresh_sd_model", elem_classes="modelpreview_xd_refresh_sd_model")
+			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text", elem_classes="modelpreview_xd_update_sd_model_text")
+			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model", elem_classes="modelpreview_xd_update_sd_model")
 		with gr.Row():
 			prompts_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_prompts_div", visible=False)
-		with gr.Row():
-			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area")
-		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row"):
-			with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_flexcolumn_row"):
-				preview_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_html_div", visible=False)
-				preview_md = gr.Markdown(elem_id=f"{tab_id_key}_modelpreview_xd_markdown_div", visible=False)
-		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_tags_row"):
-			preview_tags = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_tags_div", visible=False)
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_notes_row", elem_classes="modelpreview_xd_notes_row"):
+			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area", elem_classes="modelpreview_xd_update_sd_model_text_area")
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row", elem_classes="modelpreview_xd_html_row"):
+			with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_flexcolumn_row", elem_classes="modelpreview_xd_flexcolumn_row"):
+				preview_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_html_div", elem_classes="modelpreview_xd_html_div", visible=False)
+				preview_md = gr.Markdown(elem_id=f"{tab_id_key}_modelpreview_xd_markdown_div", elem_classes="modelpreview_xd_markdown_div", visible=False)
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_tags_row", elem_classes="modelpreview_xd_tags_row"):
+			preview_tags = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_tags_div", elem_classes="modelpreview_xd_tags_div", visible=False)
 
 	list.change(
 		fn=show_preview_fn,
