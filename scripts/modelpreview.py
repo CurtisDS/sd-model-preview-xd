@@ -35,9 +35,26 @@ def import_lora_module_builtin():
 		additional_networks_builtin = None
 	return additional_networks_builtin
 
+
+def import_lycoris_module():
+	# import/update the lycoris module if it's available
+	try:
+		spec = importlib.util.find_spec('extensions.a1111-sd-webui-lycoris.lycoris')
+		if spec:
+			lycoris_module = importlib.util.module_from_spec(spec)
+			spec.loader.exec_module(lycoris_module)
+		else:
+			lycoris_module = None
+	except:
+		lycoris_module = None
+	return lycoris_module
+
 # try and get the lora module
 additional_networks = import_lora_module()
 additional_networks_builtin = import_lora_module_builtin()
+
+# try and get the lycoris module
+lycoris_module = import_lycoris_module()
 
 refresh_symbol = '🔄'
 update_symbol = '↙️'
@@ -94,11 +111,13 @@ checkpoint_choices = []
 embedding_choices = []
 hypernetwork_choices = []
 lora_choices = []
+lycoris_choices = []
 tags = {
 	"checkpoints": {},
 	"embeddings": {},
 	"hypernetworks": {},
-	"loras": {}
+	"loras": {},
+	"lycoris": {}
 }
 
 def search_for_tags(model_names, model_tags, paths):
@@ -215,6 +234,28 @@ def list_all_loras():
 	search_for_tags(lora_choices, tags["loras"], get_lora_dirs())
 	return lora_choices
 
+
+def list_all_lycorii():
+	global lycoris_choices, lycoris_module
+	# create an empty set for lycora models
+	lycorii = set()
+
+	# import/update the lycora module
+	lycoris_module = import_lycoris_module()
+	if lycoris_module is not None:
+		# copy the list of models
+		lycorii_list = lycoris_module.available_lycos.copy()
+		# remove the None item from the list
+		lycorii_list.pop("None", None)
+		# remove hash from model
+		lycorii_list = [re.sub(r'\([a-fA-F0-9]{10,12}\)$', '', lyco) for lyco in lycorii_list.keys()]
+		lycorii.update(lycorii_list)
+
+	# return the list
+	lycoris_choices = sorted(lycorii, key=natural_order_number)
+	search_for_tags(lycoris_choices, tags["lycoris"], get_lycoris_dirs())
+	return lycoris_choices
+
 def refresh_models(choice = None, filter = None):
 	global checkpoint_choices
 	# update the choices for the checkpoint list
@@ -238,6 +279,13 @@ def refresh_loras(choice = None, filter = None):
 	# update the choices for the lora list
 	lora_choices = list_all_loras()
 	return filter_loras(filter), *show_lora_preview(choice)
+
+
+def refresh_lycorii(choice = None, filter = None):
+	global lycoris_choices
+	# update the choices for the lora list
+	lycoris_choices = list_all_lycorii()
+	return filter_lycorii(filter), *show_lycoris_preview(choice)
 
 def filter_choices(choices, filter, tags_obj):
 	filtered_choices = choices
@@ -265,6 +313,11 @@ def filter_loras(filter=None):
 	filtered_lora_choices = filter_choices(lora_choices, filter, tags["loras"])
 	return gr.Dropdown.update(choices=filtered_lora_choices)
 
+
+def filter_lycorii(filter=None):
+	filtered_lycoris_choices = filter_choices(lycoris_choices, filter, tags["lycoris"])
+	return gr.Dropdown.update(choices=filtered_lycoris_choices)
+
 def update_checkpoint(name):
 	# update the selected preview for checkpoint tab
 	new_choice = find_choice(checkpoint_choices, name)
@@ -284,6 +337,12 @@ def update_lora(name):
 	# update the selected preview for lora tab
 	new_choice = find_choice(lora_choices, name)
 	return new_choice, *show_lora_preview(new_choice)
+
+
+def update_lycorii(name):
+	# update the selected preview for LyCORIS tab
+	new_choice = find_choice(lycoris_choices, name)
+	return new_choice, *show_lycoris_preview(new_choice)
 
 def find_choice(list, name):
 	# clean the name from the list and match a choice to the model 
@@ -534,6 +593,16 @@ def get_lora_dirs():
 			directories.append(extra_lora_path)
 	return directories
 
+
+def get_lycoris_dirs():
+	# create list of directories
+	directories = []
+
+	if lycoris_module is not None:
+		directories.append(shared.cmd_opts.lyco_dir)
+
+	return directories
+
 def show_model_preview(modelname=None):
 	# get preview for the model
 	return show_preview(modelname, get_checkpoints_dirs(), "checkpoints")
@@ -549,6 +618,11 @@ def show_hypernetwork_preview(modelname=None):
 def show_lora_preview(modelname=None):
 	# get preview for the model
 	return show_preview(modelname, get_lora_dirs(), "loras")
+
+
+def show_lycoris_preview(modelname=None):
+	# get preview for a LyCORIS
+	return show_preview(modelname, get_lycoris_dirs(), "lycoris")
 
 def show_preview(modelname, paths, tags_key):
 	if modelname is None or len(modelname) == 0 or paths is None or len(paths) == 0:
@@ -674,6 +748,8 @@ def on_ui_tabs():
 	additional_networks = import_lora_module()
 	additional_networks_builtin = import_lora_module_builtin()
 
+	lycoris_module = import_lycoris_module()
+
 	# create a gradio block
 	with gr.Blocks() as modelpreview_interface:
 
@@ -710,6 +786,15 @@ def on_ui_tabs():
 						filter_loras,
 						refresh_loras,
 						update_lora)
+
+		# create a tab for the LyCORIS previews if the module was loaded
+		if lycoris_module is not None:
+			create_tab("LyCORIS", "ly",
+					   list_all_lycorii(),
+					   show_lycoris_preview,
+					   filter_lycorii,
+					   refresh_lycorii,
+					   update_lycorii)
 	
 	return (modelpreview_interface, "Model Pre​views", "modelpreview_xd_interface"),
 
