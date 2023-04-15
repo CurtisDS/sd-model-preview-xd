@@ -14,11 +14,13 @@ This extension allows you to create various types of preview files/notes[^previe
 2. Paste `https://github.com/CurtisDS/sd-model-preview-xd` into the url box.
 3. Click Install
 4. From the Installed tab click apply and restart[^2].
-5. Put `.html`[^3], `.md`[^3], `.txt`, `.png`, `.webp`, `.jpg`/`.jpeg`, and/or `.tags`[^4] files in the same directory as your models, or a subfolder. Make sure to name the files the same as your model. You may append something after the name of the model and it will still work ([See: Name Matching Rules](#name-matching-rules)). You can have multiple images for a single model, but only one markdown, text, or html file. You can also mix and match any of the preview files except for HTML files, if the extension finds an html file it will only show the html file.
+5. Put `.html`[^3], `.md`[^3], `.txt`, `.png`, `.webp`, `.jpg`/`.jpeg`, `.prompt`[^4], and/or `.tags`[^5] files in the same directory as your models, or a subfolder. Make sure to name the files the same as your model. You may append something after the name of the model and it will still work ([See: Name Matching Rules](#name-matching-rules)). You can have multiple images for a single model, but only one markdown, text, or html file. You can also mix and match any of the preview files except for HTML files, if the extension finds an html file it will only show the html file.
 
 [^2]: If you run into issues after first install you may need to fully shutdown and rerun the webui-user.bat after you install the extension.
 [^3]: HTML and Markdown files will not support linking to files or images outside of the Automatic1111 directory. If you cannot keep linked files within the install directory upload them to the internet and link to them remotely.
-[^4]: A `.tags` file is just a text file containing words that you want to use for searching for the associated model. It is suggested you format this as a list of hashtags. For example: `"#anime #sfw #mix #high_quality"`. This will help avoid matching `"nsfw"` when searching for `"sfw"`. However there is no *required* format. A search will match as long as the search text appears anywhere in the file.
+[^4]: A `.prompt` file is a CSV file containing a list of prompts associated with your model.
+[^5]: A `.tags` file is just a text file containing words that you want to use for searching for the associated model. It is suggested you format this as a list of hashtags. For example: `"#anime #sfw #mix #high_quality"`. This will help avoid matching `"nsfw"` when searching for `"sfw"`. However there is no *required* format. A search will match as long as the search text appears anywhere in the file.
+
 
 ***Note**: If you are using symlinks or otherwise changing the default model directories [click here for information](#changing-default-directories)*
 
@@ -35,7 +37,7 @@ This extension supports the following model types in the the default directories
 1. After creating the preview files and putting them in the corresponding directories, select the Model Preview tab in web ui and then the type of model you want to preview
 2. Select a model from the dropdown list. (If the model has any preview files they will be shown)
 3. Any preview png files found that also contain prompt data embedded in them will have a red "copy" button when hovering over the image. By clicking the button it will copy the prompt data to your clipboard.
-4. If you would like to filter the list of models enter text in the filter text box. The filter text will be separated by commas and return models who have that text anywhere in its name or its associated `.tags`[^4] file.
+4. If you would like to filter the list of models enter text in the filter text box. The filter text will be separated by commas and return models who have that text anywhere in its name or its associated `.tags`[^5] file.
 
 ![screenshot](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd.png)
 

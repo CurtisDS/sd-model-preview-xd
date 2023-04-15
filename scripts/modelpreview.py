@@ -6,6 +6,7 @@ import gradio as gr
 from modules import script_callbacks, sd_models, shared, sd_hijack
 from PIL import Image
 import base64
+import csv
 
 import importlib.util
 
@@ -63,8 +64,15 @@ html_ext_pattern = r'html'
 md_ext_pattern = r'md'
 txt_ext_pattern = r'txt'
 tags_ext_pattern = r'tags'
+prompts_ext_pattern = r'prompt'
 img_ext_pattern = r'(?:png|jpg|jpeg|webp|jxk|avif)'
-all_ext_pattern = r'(?:' + html_ext_pattern + r'|' + md_ext_pattern + r'|' + txt_ext_pattern + r'|' + tags_ext_pattern + r'|' + img_ext_pattern + r')'
+all_ext_pattern = r'(?:' + html_ext_pattern\
+				  + r'|' + md_ext_pattern\
+				  + r'|' + txt_ext_pattern\
+				  + r'|' + tags_ext_pattern\
+				  + r'|' + prompts_ext_pattern\
+				  + r'|' + img_ext_pattern\
+				  + r')'
 
 def is_in_directory(parent_dir, child_path):
 	# get the directory of the child path
@@ -409,6 +417,7 @@ def search_and_display_previews(model_name, paths):
 	html_generic_pattern = re.compile(r'^.*(?i:\.' + html_ext_pattern+ r')$')
 	md_generic_pattern = re.compile(r'^.*(?i:\.' + md_ext_pattern+ r')$')
 	txt_generic_pattern = re.compile(r'^.*(?i:\.' + txt_ext_pattern+ r')$')
+	prompts_generic_pattern = re.compile(r'^.*(?i:\.' + prompts_ext_pattern + r')$')
 	img_generic_pattern = re.compile(r'^.*(?i:\.' + img_ext_pattern + r')$')
 	# create patters for the supported preview file types
 	# `model_name` will be the name of the model to check for preview files for
@@ -420,6 +429,8 @@ def search_and_display_previews(model_name, paths):
 		html_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + html_ext_pattern+ r')$')
 		# Markdown previews should follow {model}.md example 'checkpoint1000.md'
 		md_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + md_ext_pattern+ r')$')
+		# Prompt lists should follow {model}.prompt example 'checkpoint1000.prompt'
+		prompts_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + prompts_ext_pattern + r')$')
 		# Text files previews should follow {model}.txt example 'checkpoint1000.txt'
 		txt_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + txt_ext_pattern+ r')$')
 		# Images previews should follow {model}.{extension} or {model}.preview.{extension} or {model}.{number}.{extension} or {model}.preview.{number}.{extension}
@@ -433,12 +444,14 @@ def search_and_display_previews(model_name, paths):
 		html_pattern = html_generic_pattern
 		md_pattern = md_generic_pattern
 		txt_pattern = txt_generic_pattern
+		prompts_pattern = prompts_generic_pattern
 		img_pattern = img_generic_pattern
 	else:
 		# use a loose name matching that only requires the model name to show up somewhere in the file name
 		html_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + html_ext_pattern+ r')$')
 		md_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + md_ext_pattern+ r')$')
 		txt_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + txt_ext_pattern+ r')$')
+		prompts_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + prompts_ext_pattern+ r')$')
 		img_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + img_ext_pattern + r')$')
 	
 	# an array to hold the image html code
@@ -447,6 +460,8 @@ def search_and_display_previews(model_name, paths):
 	found_txt_file = None
 	# if a markdown file is found
 	md_file = None
+	# if a prompts file is found
+	prompts_file = None
 	# if an html file is found the iframe
 	html_file_frame = None
 
@@ -454,6 +469,8 @@ def search_and_display_previews(model_name, paths):
 	generic_found_txt_file = None
 	# if a markdown file is found
 	generic_md_file = None
+	# if a prompts file is found
+	generic_prompts_file = None
 	# if an html file is found the iframe
 	generic_html_file_frame = None
 
@@ -500,6 +517,9 @@ def search_and_display_previews(model_name, paths):
 							if md_generic_pattern.match(filename):
 								# there can only be one markdown file, if one was already found it is replaced
 								generic_md_file = file_path
+							if prompts_generic_pattern.match(filename):
+								# there can only be one markdown file, if one was already found it is replaced
+								generic_prompts_file = file_path
 							if img_generic_pattern.match(filename):
 								# there can be many images, even spread across the multiple paths
 								img_file = file_path
@@ -514,6 +534,9 @@ def search_and_display_previews(model_name, paths):
 					if md_pattern.match(filename):
 						# there can only be one markdown file, if one was already found it is replaced
 						md_file = file_path
+					if prompts_pattern.match(filename):
+						# there can only be one prompts file, if one was already found it is replaced
+						prompts_file = file_path
 					if img_pattern.match(filename):
 						# there can be many images, even spread across the multiple paths
 						img_file = file_path
@@ -533,6 +556,8 @@ def search_and_display_previews(model_name, paths):
 
 	if md_file is None and generic_md_file is not None:
 		md_file = generic_md_file
+	if prompts_file is None and generic_prompts_file is not None:
+		prompts_file = generic_prompts_file
 	if found_txt_file is None and generic_found_txt_file is not None:
 		found_txt_file = generic_found_txt_file
 			
@@ -540,7 +565,7 @@ def search_and_display_previews(model_name, paths):
 	html_code_output = '<div class="img-container-set">' + ''.join(html_code_list) + '</div>' if len(html_code_list) > 0 else None
 
 	# return the images, and/or text file found
-	return html_code_output, md_file, found_txt_file
+	return html_code_output, md_file, prompts_file, found_txt_file
 
 def get_checkpoints_dirs():
 	# create list of directories
@@ -631,7 +656,7 @@ def show_preview(modelname, paths, tags_key):
 	# remove the hash if exists, the extension, and if the string is a path just return the file name
 	name = clean_modelname(modelname)
 	# get the preview data
-	html_code, found_md_file, found_txt_file = search_and_display_previews(name, paths)
+	html_code, found_md_file, found_prompts_file, found_txt_file = search_and_display_previews(name, paths)
 	preview_html = '' if html_code is None else html_code
 
 	# if a text file was found update the gradio text element
@@ -652,6 +677,24 @@ def show_preview(modelname, paths, tags_key):
 		md_update = gr.Textbox.update(value=output_text, visible=True)
 	else:
 		md_update = gr.Textbox.update(value=None, visible=False)
+
+	# if a prompts file was found update the gradio prompts list
+	if found_prompts_file:
+		prompts: list[str] = list()
+		try:
+			with open(found_prompts_file, newline='') as csvfile:
+				reader = csv.reader(csvfile)
+				for row in reader:
+					prompts.extend(row)
+		except:
+			prompts_update = gr.HTML.update(value="Error reading prompts file")
+
+		prompts = list(map(lambda x: "<span class=\"prompt-label\" onClick=\"copyOnClick(this)\">" + x.strip() + "</span>", prompts))
+		html = ", ".join(prompts)
+
+		prompts_update = gr.HTML.update(value=html, visible=True)
+	else:
+		prompts_update = gr.HTML.update(visible=False)
 	
 	# if images were found or an HTML file was found update the gradio html element
 	if html_code:
@@ -669,7 +712,7 @@ def show_preview(modelname, paths, tags_key):
 		tags_html = gr.HTML.update(value=f'<div class="footer-tags">{found_tags}</div>', visible=True)
 	else:
 		tags_html = gr.HTML.update(value='', visible=False)
-	return txt_update, md_update, html_update, tags_html
+	return prompts_update, txt_update, md_update, html_update, tags_html
 
 def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, refresh_fn, update_selected_fn):
 	# create a tab for model previews
@@ -681,6 +724,8 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 			refresh_list = gr.Button(value=refresh_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_refresh_sd_model")
 			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text")
 			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model")
+		with gr.Row():
+			prompts_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_prompts_div", visible=False)
 		with gr.Row():
 			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row"):
@@ -696,6 +741,7 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 			list,
 		],
 		outputs=[
+			prompts_html,
 			notes_text_area,
 			preview_md,
 			preview_html,
@@ -721,6 +767,7 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 		],
 		outputs=[
 			list,
+			prompts_html,
 			notes_text_area,
 			preview_md,
 			preview_html,
@@ -735,6 +782,7 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 		],
 		outputs=[
 			list,
+			prompts_html,
 			notes_text_area,
 			preview_md,
 			preview_html,

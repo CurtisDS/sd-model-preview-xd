@@ -209,6 +209,25 @@
 	cursor: zoom-in;
 }
 
+#tab_modelpreview_xd_interface .prompt-label {
+	display: inline-block;
+    border-radius: 3px;
+    padding: 0 .5em;
+    background: var(--primary-500);
+    color: #ffffff;
+    font-weight: 600;
+    margin: .25em .1em;
+	user-select: all;
+    -moz-user-select: all;
+    -webkit-user-select: all;
+	cursor: pointer;
+}
+#tab_modelpreview_xd_interface .prompt-label:after {
+	content: '📋';
+	margin-left: 1px;
+}
+
+
 @media (max-height: 1000px) {
     #cp_modelpreview_xd_html_div .img-container-set .img-container,
     #em_modelpreview_xd_html_div .img-container-set .img-container,

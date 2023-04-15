@@ -308,3 +308,7 @@ function imageZoomIn(event) {
   // append the overlay div to the body
   document.body.appendChild(overlay);
 }
+
+function copyOnClick(target) {
+  navigator.clipboard.writeText(target.innerText);
+}
