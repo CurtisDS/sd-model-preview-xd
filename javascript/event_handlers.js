@@ -309,6 +309,7 @@ function imageZoomIn(event) {
   document.body.appendChild(overlay);
 }
 
-function copyOnClick(target) {
-  navigator.clipboard.writeText(target.innerText);
+function copyToClipboard(x) {
+  navigator.clipboard.writeText(x.join(', '));
+  return x;
 }

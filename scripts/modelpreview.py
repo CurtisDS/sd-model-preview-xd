@@ -683,7 +683,7 @@ def show_preview(modelname, paths, tags_key):
 	else:
 		md_update = gr.Textbox.update(value=None, visible=False)
 
-	# if a prompts file was found update the gradio prompts list
+	# if a prompt file was found update the gradio prompts list
 	if found_prompts_file:
 		prompts: list[str] = list()
 		try:
@@ -691,15 +691,12 @@ def show_preview(modelname, paths, tags_key):
 				reader = csv.reader(csvfile)
 				for row in reader:
 					prompts.extend(row)
-		except:
-			prompts_update = gr.HTML.update(value="Error reading prompts file")
-
-		prompts = list(map(lambda x: "<span class=\"prompt-label\" onClick=\"copyOnClick(this)\">" + x.strip() + "</span>", prompts))
-		html = ", ".join(prompts)
-
-		prompts_update = gr.HTML.update(value=html, visible=True)
+		finally:
+			prompts_list_update = gr.CheckboxGroup.update(visible=True, choices=prompts, value=prompts)
+			prompts_button_update = gr.Button.update(visible=True)
 	else:
-		prompts_update = gr.HTML.update(visible=False)
+		prompts_list_update = gr.CheckboxGroup.update(visible=False)
+		prompts_button_update = gr.Button.update(visible=False)
 
 	# if images were found or an HTML file was found update the gradio html element
 	if html_code:
@@ -717,7 +714,7 @@ def show_preview(modelname, paths, tags_key):
 		tags_html = gr.HTML.update(value=f'<div class="footer-tags">{found_tags}</div>', visible=True)
 	else:
 		tags_html = gr.HTML.update(value='', visible=False)
-	return prompts_update, txt_update, md_update, html_update, tags_html
+	return prompts_list_update, prompts_button_update, txt_update, md_update, html_update, tags_html
 
 def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, refresh_fn, update_selected_fn):
 	# create a tab for model previews
@@ -729,8 +726,10 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 			refresh_list = gr.Button(value=refresh_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_refresh_sd_model", elem_classes="modelpreview_xd_refresh_sd_model")
 			update_model_input = gr.Textbox(value="", elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text", elem_classes="modelpreview_xd_update_sd_model_text")
 			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model", elem_classes="modelpreview_xd_update_sd_model")
-		with gr.Row():
-			prompts_html = gr.HTML(elem_id=f"{tab_id_key}_modelpreview_xd_prompts_div", visible=False)
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_prompts_row", elem_classes="modelpreview_xd_prompts_row"):
+			prompts_list = gr.Checkboxgroup(label="Prompts", visible=False, interactive=True, elem_id=f"{tab_id_key}_modelpreview_xd_prompts_list", elem_classes="modelpreview_xd_prompts_list")
+		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_prompts_button_row", elem_classes="modelpreview_xd_prompts_button_row"):
+			prompts_copy_button = gr.Button(value="Copy to clipboard", type='secondary', visible=False, interactive=True, elem_id=f"{tab_id_key}_modelpreview_xd_prompts_copy_button", elem_classes="modelpreview_xd_prompts_copy_button")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_notes_row", elem_classes="modelpreview_xd_notes_row"):
 			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area", elem_classes="modelpreview_xd_update_sd_model_text_area")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row", elem_classes="modelpreview_xd_html_row"):
@@ -746,7 +745,8 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 			list,
 		],
 		outputs=[
-			prompts_html,
+			prompts_list,
+			prompts_copy_button,
 			notes_text_area,
 			preview_md,
 			preview_html,
@@ -772,7 +772,8 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 		],
 		outputs=[
 			list,
-			prompts_html,
+			prompts_list,
+			prompts_copy_button,
 			notes_text_area,
 			preview_md,
 			preview_html,
@@ -787,13 +788,16 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 		],
 		outputs=[
 			list,
-			prompts_html,
+			prompts_list,
+			prompts_copy_button,
 			notes_text_area,
 			preview_md,
 			preview_html,
 			preview_tags
 		]
 	)
+
+	prompts_copy_button.click(None, [prompts_list], prompts_list, _js="(x) => copyToClipboard(x)")
 
 def on_ui_tabs():
 	global additional_networks, additional_networks_builtin
