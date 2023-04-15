@@ -1,4 +1,4 @@
-let previwTab = null;
+let previewTab = null;
 
 // Sync the refresh button for list with the invisible refresh button in the extension
 function registerClickEvents(refreshButton, invisible_button_id_selectors) {
@@ -51,7 +51,7 @@ function setSelectValue(selectPreviewModelElement, selectSDModelElement) {
 // Is fired by automatic1111 when the UI is updated
 onUiUpdate(function() {
   // There is a script containing settings for height
-  // Get the element and set the attribute to limit the hieght
+  // Get the element and set the attribute to limit the height
   let tabEl = gradioApp().getElementById('tab_modelpreview_xd_interface');
   let jsonEl = gradioApp().getElementById('modelpreview_xd_setting_json');
   if (typeof tabEl != 'undefined' && typeof jsonEl != 'undefined') {
@@ -67,9 +67,9 @@ onUiUpdate(function() {
   if(typeof selectSDModelElement != "undefined" && selectSDModelElement != null) {
     // Get the select element for the preview model list
     const selectPreviewModelElement = gradioApp().querySelector('#cp_mp2_preview_model_list select');
-    // Only register a new event if you havent already
+    // Only register a new event if you haven't already
     if (selectPreviewModelElement != "undefined" && selectPreviewModelElement != null && selectSDModelElement.getAttribute('md_preview_listener') !== 'true') {
-      // Set this attribute to true so we dont set the same listener again
+      // Set this attribute to true so we don't set the same listener again
       selectSDModelElement.setAttribute('md_preview_listener', 'true');
       // Add an event handler that will update the select with the new value if someone changes the checkpoint
       selectSDModelElement.addEventListener('change', (event) => setSelectValue(selectPreviewModelElement, selectSDModelElement));
@@ -85,7 +85,7 @@ onUiUpdate(function() {
     }
   }
 
-  /* ################### v DEPRICATED v ############################ */
+  /* ################### v DEPRECATED v ############################ */
 
   // Get the select element for the SD model checkpoint
   const selectHypernetworkElement = gradioApp().querySelector('#setting_sd_hypernetwork select');
@@ -121,7 +121,7 @@ onUiUpdate(function() {
     }
   });
   
-  /* ################### ^ DEPRICATED ^ ############################ */
+  /* ################### ^ DEPRECATED ^ ############################ */
 
   // Sync the refresh main model list button
   registerClickEvents(gradioApp().querySelector('#refresh_sd_model_checkpoint'), ['#cp_modelpreview_xd_refresh_sd_model','#lo_modelpreview_xd_refresh_sd_model','#ly_modelpreview_xd_refresh_sd_model','#hn_modelpreview_xd_refresh_sd_model','#em_modelpreview_xd_refresh_sd_model']);
@@ -164,7 +164,7 @@ onUiUpdate(function() {
   if(typeof tabs != "undefined" && tabs != null && tabs.length > 0) {
     tabs.forEach(tab => {
       if(tab.innerText == "Model Pre​views") {
-        previwTab = tab;
+        previewTab = tab;
       }
     });
   }
@@ -235,7 +235,7 @@ function doCardClick(event, name, modelType) {
         let modelNameID = null;
         let modelUpdateID = null;
 
-        // get the appropriate ids for the invisible text and button elements that will let us programtically set the dropdown later
+        // get the appropriate ids for the invisible text and button elements that will let us programmatically set the dropdown later
         switch (modelType) {
           case "Hypernetwork":
             modelNameID = "hn_modelpreview_xd_update_sd_model_text";
@@ -265,17 +265,17 @@ function doCardClick(event, name, modelType) {
 
         if(typeof modelName != "undefined" && modelName != null && 
            typeof modelUpdate != "undefined" && modelUpdate != null) {
-          // set the textares value
+          // set the textarea's value
           modelName.value = name;
           
-          // dispatch an event to triger the gradio update for the textarea
+          // dispatch an event to trigger the gradio update for the textarea
           const inputEvent = new Event("input");
           modelName.dispatchEvent(inputEvent);
           // click the update button to trigger the python code to set the dropdown
           modelUpdate.click();
           // click on the model preview tab now that we have selected the right preview
           setTimeout((event) => {
-            previwTab.click();
+            previewTab.click();
           }, 100);
         }
       }

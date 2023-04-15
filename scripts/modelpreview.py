@@ -242,13 +242,12 @@ def list_all_loras():
 	search_for_tags(lora_choices, tags["loras"], get_lora_dirs())
 	return lora_choices
 
-
 def list_all_lycorii():
 	global lycoris_choices, lycoris_module
-	# create an empty set for lycora models
+	# create an empty set for lycoris models
 	lycorii = set()
 
-	# import/update the lycora module
+	# import/update the lycoris module
 	lycoris_module = import_lycoris_module()
 	if lycoris_module is not None:
 		# copy the list of models
@@ -288,10 +287,9 @@ def refresh_loras(choice = None, filter = None):
 	lora_choices = list_all_loras()
 	return filter_loras(filter), *show_lora_preview(choice)
 
-
 def refresh_lycorii(choice = None, filter = None):
 	global lycoris_choices
-	# update the choices for the lora list
+	# update the choices for the lycoris list
 	lycoris_choices = list_all_lycorii()
 	return filter_lycorii(filter), *show_lycoris_preview(choice)
 
@@ -321,7 +319,6 @@ def filter_loras(filter=None):
 	filtered_lora_choices = filter_choices(lora_choices, filter, tags["loras"])
 	return gr.Dropdown.update(choices=filtered_lora_choices)
 
-
 def filter_lycorii(filter=None):
 	filtered_lycoris_choices = filter_choices(lycoris_choices, filter, tags["lycoris"])
 	return gr.Dropdown.update(choices=filtered_lycoris_choices)
@@ -345,7 +342,6 @@ def update_lora(name):
 	# update the selected preview for lora tab
 	new_choice = find_choice(lora_choices, name)
 	return new_choice, *show_lora_preview(new_choice)
-
 
 def update_lycorii(name):
 	# update the selected preview for LyCORIS tab
@@ -623,8 +619,17 @@ def get_lycoris_dirs():
 	# create list of directories
 	directories = []
 
+	# add directories from the third party lycoris extension if exists
 	if lycoris_module is not None:
-		directories.append(shared.cmd_opts.lyco_dir)
+		# add models/lora just in case to the list of directories
+		default_dir = os.path.join("models","LyCORIS") # models/Lora
+		if os.path.exists(default_dir) and os.path.isdir(default_dir):
+			directories.append(default_dir)
+		# add directories from the third party lycoris extension if exists
+		set_dir = shared.cmd_opts.lyco_dir
+		if set_dir is not None and not is_dir_in_list(directories, set_dir):
+			# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
+			directories.append(set_dir)
 
 	return directories
 
@@ -695,7 +700,7 @@ def show_preview(modelname, paths, tags_key):
 		prompts_update = gr.HTML.update(value=html, visible=True)
 	else:
 		prompts_update = gr.HTML.update(visible=False)
-	
+
 	# if images were found or an HTML file was found update the gradio html element
 	if html_code:
 		html_update = gr.HTML.update(value=preview_html, visible=True)
@@ -795,7 +800,6 @@ def on_ui_tabs():
 	# import/update the lora module
 	additional_networks = import_lora_module()
 	additional_networks_builtin = import_lora_module_builtin()
-
 	lycoris_module = import_lycoris_module()
 
 	# create a gradio block
