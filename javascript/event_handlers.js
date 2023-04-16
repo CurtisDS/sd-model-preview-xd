@@ -310,6 +310,7 @@ function imageZoomIn(event) {
 }
 
 function copyToClipboard(x) {
+  // used to copy prompts from .prompt files to clipboard
   navigator.clipboard.writeText(x.join(', '));
   return x;
 }
