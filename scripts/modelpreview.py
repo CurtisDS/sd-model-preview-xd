@@ -615,7 +615,6 @@ def get_lora_dirs():
 			directories.append(extra_lora_path)
 	return directories
 
-
 def get_lycoris_dirs():
 	# create list of directories
 	directories = []
@@ -650,14 +649,19 @@ def show_lora_preview(modelname=None):
 	# get preview for the model
 	return show_preview(modelname, get_lora_dirs(), "loras")
 
-
 def show_lycoris_preview(modelname=None):
 	# get preview for a LyCORIS
 	return show_preview(modelname, get_lycoris_dirs(), "lycoris")
 
 def show_preview(modelname, paths, tags_key):
 	if modelname is None or len(modelname) == 0 or paths is None or len(paths) == 0:
-		return None, None, None, None
+		txt_update = gr.Textbox.update(value=None, visible=False)
+		md_update = gr.Textbox.update(value=None, visible=False)		
+		prompts_list_update = gr.CheckboxGroup.update(visible=False)
+		prompts_button_update = gr.Button.update(visible=False)
+		html_update = gr.HTML.update(value='', visible=False)		
+		tags_html = gr.HTML.update(value='', visible=False)
+		return prompts_list_update, prompts_button_update, txt_update, md_update, html_update, tags_html
 	
 	# remove the hash if exists, the extension, and if the string is a path just return the file name
 	name = clean_modelname(modelname)
