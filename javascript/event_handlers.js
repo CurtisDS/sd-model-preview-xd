@@ -4,9 +4,9 @@ let previewTab = null;
 function registerClickEvents(refreshButton, invisible_button_id_selectors) {
   // Check if the button element exists and is not null
   if (typeof refreshButton != "undefined" && refreshButton != null) {
-    // Only register a new event if you havent already
+    // Only register a new event if you haven't already
     if (refreshButton.getAttribute('md_preview_listener') !== 'true') {
-      // Set this attribute to true so we dont set the same listener again
+      // Set this attribute to true so we don't set the same listener again
       refreshButton.setAttribute('md_preview_listener', 'true');
       // Add a click event listener to the main refresh model button
       refreshButton.addEventListener('click', (event) => {
@@ -149,7 +149,7 @@ onUiUpdate(function() {
           title = "Use folder name matching. Will look for a folder within your model directory that matches your model's name (case sensitive) and will show any preview files found within that folder or any subfolders of that folder. If your model is named 'mymodel.ckpt' all preview files located in '/mymodel/' will be shown.";
         break;
         case "Index":
-          title = "If a folder contains a file 'index.txt' that lists model names, any preview files in that folder regardless of name will be associated with each model in the index file. This allows you to share preview files amoung a number of models. This matching mode will also match any file named similar to the 'Strict' matching mode to allow you to still specify preview files for specific models.";
+          title = "If a folder contains a file 'index.txt' that lists model names, any preview files in that folder regardless of name will be associated with each model in the index file. This allows you to share preview files among a number of models. This matching mode will also match any file named similar to the 'Strict' matching mode to allow you to still specify preview files for specific models.";
         break;
       }
       if (title != "") {

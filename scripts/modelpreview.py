@@ -2,8 +2,8 @@ import os
 import os.path
 import re
 import urllib
-import gradio as gr
-from modules import script_callbacks, sd_models, shared, sd_hijack
+import gradio as gr # type: ignore
+from modules import script_callbacks, sd_models, shared, sd_hijack # type: ignore
 from PIL import Image
 import base64
 import csv
