@@ -308,3 +308,8 @@ function imageZoomIn(event) {
   // append the overlay div to the body
   document.body.appendChild(overlay);
 }
+
+function copyToClipboard(x) {
+  navigator.clipboard.writeText(x.join(', '));
+  return x;
+}
