@@ -582,7 +582,7 @@ def get_checkpoints_dirs():
 def get_embedding_dirs():
 	# create list of directories
 	directories = ['embeddings', os.path.join('models','embeddings')]
-	directories = filter(lambda x: os.path.exists(x), directories)
+	directories = list(filter(lambda x: os.path.exists(x), directories))
 
 	set_dir = shared.cmd_opts.embeddings_dir
 	if set_dir is not None and not is_dir_in_list(directories, set_dir):
