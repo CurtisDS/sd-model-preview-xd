@@ -39,16 +39,22 @@ def import_lora_module_builtin():
 
 def import_lycoris_module():
 	# import/update the lycoris module if it's available
-	try:
-		spec = importlib.util.find_spec('extensions.a1111-sd-webui-lycoris.lycoris')
-		if spec:
-			lycoris_module = importlib.util.module_from_spec(spec)
-			spec.loader.exec_module(lycoris_module)
-		else:
-			lycoris_module = None
-	except:
-		lycoris_module = None
-	return lycoris_module
+
+	possible_lycoris_modules = [
+		'extensions-builtin.a1111-sd-webui-lycoris.lycoris',
+		'extensions.a1111-sd-webui-lycoris.lycoris'
+	]
+	for module in possible_lycoris_modules:
+		try:
+			spec = importlib.util.find_spec(module)
+			if spec:
+				loaded_lycoris_module = importlib.util.module_from_spec(spec)
+				spec.loader.exec_module(loaded_lycoris_module)
+				return loaded_lycoris_module
+		except:
+			pass
+
+	return None
 
 # try and get the lora module
 additional_networks = import_lora_module()
@@ -575,7 +581,9 @@ def get_checkpoints_dirs():
 
 def get_embedding_dirs():
 	# create list of directories
-	directories = ['embeddings']
+	directories = ['embeddings', os.path.join('models','embeddings')]
+	directories = filter(lambda x: os.path.exists(x), directories)
+
 	set_dir = shared.cmd_opts.embeddings_dir
 	if set_dir is not None and not is_dir_in_list(directories, set_dir):
 		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
