@@ -134,80 +134,85 @@ tags = {
 	"lycoris": {}
 }
 
-def search_for_tags(model_names, model_tags, paths):
+
+def search_for_tags(model_names, model_tags, path: str):
 	model_tags.clear()
+
+	if path is None:
+		return
+
 	general_tag_pattern = re.compile(r'^.*(?i:\.tags)$')
 
-	# support the ability to check multiple paths
-	for path in paths:
-		# loop through all files in the path and any subdirectories
-		for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
-			# get a list of all parent directories
-			directories = dirpath.split(os.path.sep)
+	# loop through all files in the path and any subdirectories
+	for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
+		# get a list of all parent directories
+		directories = dirpath.split(os.path.sep)
 
-			index_models = []
-			if shared.opts.model_preview_xd_name_matching == "Index":
-				index_txt_filename = next((filename for filename in filenames if filename.lower() == "index.txt"), None)
-				if index_txt_filename is not None:
-					index_txt_path = os.path.join(dirpath, index_txt_filename)
-					output_text = ""
-					with open(index_txt_path, "r", encoding="utf8") as file:
-						output_text = file.read()
-					index_models = [model.strip() for model in output_text.replace(",", "\n").splitlines()]
+		index_models = []
+		if shared.opts.model_preview_xd_name_matching == "Index":
+			index_txt_filename = next((filename for filename in filenames if filename.lower() == "index.txt"), None)
+			if index_txt_filename is not None:
+				index_txt_path = os.path.join(dirpath, index_txt_filename)
+				output_text = ""
+				with open(index_txt_path, "r", encoding="utf8") as file:
+					output_text = file.read()
+				index_models = [model.strip() for model in output_text.replace(",", "\n").splitlines()]
 
-			# check each file to see if it is a preview file
-			for filename in filenames:
-				file_path = os.path.join(dirpath, filename)
-				if general_tag_pattern.match(filename):
-					for model_name in model_names:
-						clean_model_name = clean_modelname(model_name)
+		# check each file to see if it is a preview file
+		for filename in filenames:
+			file_path = os.path.join(dirpath, filename)
+			if general_tag_pattern.match(filename):
+				for model_name in model_names:
+					clean_model_name = clean_modelname(model_name)
 
-						# if we are not using folder match mode look for files normally otherwise we are using folder match mode so make sure at least one parent directory is equal to the name of the model
-						if shared.opts.model_preview_xd_name_matching == "Folder" and clean_model_name not in directories:
-							continue
+					# if we are not using folder match mode look for files normally otherwise we are using folder match mode so make sure at least one parent directory is equal to the name of the model
+					if shared.opts.model_preview_xd_name_matching == "Folder" and clean_model_name not in directories:
+						continue
 
-						index_has_model = False
-						index_models_pattern = None
-						if shared.opts.model_preview_xd_name_matching == "Index":
-							index_has_model = clean_model_name in index_models
-							filtered_index_models = [re.escape(model) for model in index_models if model != clean_model_name]
-							if len(filtered_index_models) > 0:
-								index_models_pattern = re.compile(r'^(?:' + r'|'.join(filtered_index_models) + r')(?i:\.' + tags_ext_pattern + r')$')
-								if index_models_pattern.match(filename):
-									continue
+					index_has_model = False
+					index_models_pattern = None
+					if shared.opts.model_preview_xd_name_matching == "Index":
+						index_has_model = clean_model_name in index_models
+						filtered_index_models = [re.escape(model) for model in index_models if model != clean_model_name]
+						if len(filtered_index_models) > 0:
+							index_models_pattern = re.compile(r'^(?:' + r'|'.join(filtered_index_models) + r')(?i:\.' + tags_ext_pattern + r')$')
+							if index_models_pattern.match(filename):
+								continue
 
-						if shared.opts.model_preview_xd_name_matching == "Strict" or (not index_has_model and shared.opts.model_preview_xd_name_matching == "Index"):
-							tag_pattern = re.compile(r'^' + re.escape(clean_model_name) + r'(?i:\.' + tags_ext_pattern + r')$')
-						elif shared.opts.model_preview_xd_name_matching == "Folder" or (index_has_model and shared.opts.model_preview_xd_name_matching == "Index"):
-							tag_pattern = re.compile(r'^.*(?i:\.' + tags_ext_pattern + r')$')
-						else:
-							tag_pattern = re.compile(r'^.*' + re.escape(clean_model_name) + r'.*(?i:\.' + tags_ext_pattern + r')$')
+					if shared.opts.model_preview_xd_name_matching == "Strict" or (not index_has_model and shared.opts.model_preview_xd_name_matching == "Index"):
+						tag_pattern = re.compile(r'^' + re.escape(clean_model_name) + r'(?i:\.' + tags_ext_pattern + r')$')
+					elif shared.opts.model_preview_xd_name_matching == "Folder" or (index_has_model and shared.opts.model_preview_xd_name_matching == "Index"):
+						tag_pattern = re.compile(r'^.*(?i:\.' + tags_ext_pattern + r')$')
+					else:
+						tag_pattern = re.compile(r'^.*' + re.escape(clean_model_name) + r'.*(?i:\.' + tags_ext_pattern + r')$')
 
-						if tag_pattern.match(filename):
-							output_text = ""
-							with open(file_path, "r", encoding="utf8") as file:
-								output_text = file.read()
-							if output_text.strip() != "":
-								if model_name in model_tags:
-									model_tags[model_name] += f", {output_text}"
-								else:
-									model_tags[model_name] = output_text
+					if tag_pattern.match(filename):
+						output_text = ""
+						with open(file_path, "r", encoding="utf8") as file:
+							output_text = file.read()
+						if output_text.strip() != "":
+							if model_name in model_tags:
+								model_tags[model_name] += f", {output_text}"
+							else:
+								model_tags[model_name] = output_text
 
 def list_all_models():
 	global checkpoint_choices
 	# gets the list of checkpoints
 	model_list = sd_models.checkpoint_tiles()
 	checkpoint_choices = sorted(model_list, key=natural_order_number)
-	search_for_tags(checkpoint_choices, tags["checkpoints"], get_checkpoints_dirs())
+	search_for_tags(checkpoint_choices, tags["checkpoints"], get_checkpoint_dir())
 	return checkpoint_choices
 
 def list_all_embeddings():
 	global embedding_choices
+	# Embeddings may not have been loaded yet. (Fixes empty embeddings list on startup)
+	sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
 	# get the list of embeddings
 	list = [x for x in sd_hijack.model_hijack.embedding_db.word_embeddings.keys()]
 	list.extend([x for x in sd_hijack.model_hijack.embedding_db.skipped_embeddings.keys()])
 	embedding_choices = sorted(list, key=natural_order_number)
-	search_for_tags(embedding_choices, tags["embeddings"], get_embedding_dirs())
+	search_for_tags(embedding_choices, tags["embeddings"], get_embedding_dir())
 	return embedding_choices
 
 def list_all_hypernetworks():
@@ -215,7 +220,7 @@ def list_all_hypernetworks():
 	# get the list of hyperlinks
 	list = [x for x in shared.hypernetworks.keys()]
 	hypernetwork_choices = sorted(list, key=natural_order_number)
-	search_for_tags(hypernetwork_choices, tags["hypernetworks"], get_hypernetwork_dirs())
+	search_for_tags(hypernetwork_choices, tags["hypernetworks"], get_hypernetwork_dir())
 	return hypernetwork_choices
 	
 def list_all_loras():
@@ -245,7 +250,7 @@ def list_all_loras():
 
 	# return the list
 	lora_choices = sorted(loras, key=natural_order_number)
-	search_for_tags(lora_choices, tags["loras"], get_lora_dirs())
+	search_for_tags(lora_choices, tags["loras"], get_lora_dir())
 	return lora_choices
 
 def list_all_lycorii():
@@ -266,7 +271,7 @@ def list_all_lycorii():
 
 	# return the list
 	lycoris_choices = sorted(lycorii, key=natural_order_number)
-	search_for_tags(lycoris_choices, tags["lycoris"], get_lycoris_dirs())
+	search_for_tags(lycoris_choices, tags["lycoris"], get_lycoris_dir())
 	return lycoris_choices
 
 def refresh_models(choice = None, filter = None):
@@ -415,7 +420,7 @@ def create_html_img(file, is_in_a1111_dir):
 	# return the html code
 	return html_code
 
-def search_and_display_previews(model_name, paths):
+def search_and_display_previews(model_name: str, dir: str):
 	html_generic_pattern = re.compile(r'^.*(?i:\.' + html_ext_pattern + r')$')
 	md_generic_pattern = re.compile(r'^.*(?i:\.' + md_ext_pattern + r')$')
 	txt_generic_pattern = re.compile(r'^.*(?i:\.' + txt_ext_pattern + r')$')
@@ -479,76 +484,74 @@ def search_and_display_previews(model_name, paths):
 	# get the current directory so we can convert absolute paths to relative paths if we need to
 	current_directory = os.getcwd()
 
-	# support the ability to check multiple paths
-	for path in paths:
-		# loop through all files in the path and any subdirectories
-		for dirpath, dirnames, filenames in os.walk(path, followlinks=True):
-			# get a list of all parent directories
-			directories = dirpath.split(os.path.sep)
-			# if we are not using folder match mode look for files normally otherwise we are using folder match mode so make sure at least one parent directory is equal to the name of the model
-			if shared.opts.model_preview_xd_name_matching != "Folder" or (shared.opts.model_preview_xd_name_matching == "Folder" and model_name in directories):
-				# sort the file names using a natural sort algorithm
-				sorted_filenames = sorted(filenames, key=natural_order_number)
-				# if we are using index matching mode check to see if there is an index file, if there is read it and compile a regex that matches all the models listed in the file to use later
-				index_has_model = False
-				index_models_pattern = None
+	# loop through all files in the path and any subdirectories
+	for dirpath, dirnames, filenames in os.walk(dir, followlinks=True):
+		# get a list of all parent directories
+		directories = dirpath.split(os.path.sep)
+		# if we are not using folder match mode look for files normally otherwise we are using folder match mode so make sure at least one parent directory is equal to the name of the model
+		if shared.opts.model_preview_xd_name_matching != "Folder" or (shared.opts.model_preview_xd_name_matching == "Folder" and model_name in directories):
+			# sort the file names using a natural sort algorithm
+			sorted_filenames = sorted(filenames, key=natural_order_number)
+			# if we are using index matching mode check to see if there is an index file, if there is read it and compile a regex that matches all the models listed in the file to use later
+			index_has_model = False
+			index_models_pattern = None
+			if shared.opts.model_preview_xd_name_matching == "Index":
+				index_txt_filename = next((filename for filename in sorted_filenames if filename.lower() == "index.txt"), None)
+				if index_txt_filename is not None:
+					index_txt_path = os.path.join(dirpath, index_txt_filename)
+					output_text = ""
+					with open(index_txt_path, "r", encoding="utf8") as file:
+						output_text = file.read()
+					index_models = [model.strip() for model in output_text.replace(",", "\n").splitlines()]
+					index_has_model = model_name in index_models
+					index_models = [re.escape(model) for model in index_models if model != model_name]
+					if len(index_models) > 0:
+						index_models_pattern = re.compile(r'^(?:' + r'|'.join(index_models) + r')(?i:(?:\.preview)?(?:\.\d+)?\.' + all_ext_pattern + r')$')
+			# check each file to see if it is a preview file
+			for filename in sorted_filenames:
+				file_path = os.path.join(dirpath, filename)
+				# check if the path is a subdirectory of the install directory
+				is_in_a1111_dir = is_in_directory(current_directory, file_path)
+				img_file = None
+				# if we are using index matching, find all preview files that match the regex compiled earlier
 				if shared.opts.model_preview_xd_name_matching == "Index":
-					index_txt_filename = next((filename for filename in sorted_filenames if filename.lower() == "index.txt"), None)
-					if index_txt_filename is not None:
-						index_txt_path = os.path.join(dirpath, index_txt_filename)
-						output_text = ""
-						with open(index_txt_path, "r", encoding="utf8") as file:
-							output_text = file.read()
-						index_models = [model.strip() for model in output_text.replace(",", "\n").splitlines()]
-						index_has_model = model_name in index_models
-						index_models = [re.escape(model) for model in index_models if model != model_name]
-						if len(index_models) > 0:
-							index_models_pattern = re.compile(r'^(?:' + r'|'.join(index_models) + r')(?i:(?:\.preview)?(?:\.\d+)?\.' + all_ext_pattern + r')$')
-				# check each file to see if it is a preview file
-				for filename in sorted_filenames:
-					file_path = os.path.join(dirpath, filename)
-					# check if the path is a subdirectory of the install directory
-					is_in_a1111_dir = is_in_directory(current_directory, file_path)
-					img_file = None
-					# if we are using index matching, find all preview files that match the regex compiled earlier
-					if shared.opts.model_preview_xd_name_matching == "Index":
-						if (index_models_pattern is not None and index_models_pattern.match(filename)) or filename.lower() == "index.txt":
-							# ignore preview files that strictly match any of the other models in the index file
-							continue
-						if index_has_model:
-							if html_generic_pattern.match(filename):
-								generic_html_file_frame = create_html_iframe(file_path, is_in_a1111_dir)
-							if md_generic_pattern.match(filename):
-								# there can only be one markdown file, if one was already found it is replaced
-								generic_md_file = file_path
-							if prompts_generic_pattern.match(filename):
-								# there can only be one prompts file, if one was already found it is replaced
-								generic_prompts_file = file_path
-							if img_generic_pattern.match(filename):
-								# there can be many images, even spread across the multiple paths
-								img_file = file_path
-							if txt_generic_pattern.match(filename):
-								# there can only be one text file, if one was already found it is replaced
-								generic_found_txt_file = file_path
-					# perform the normal file matching rules for the matching mode determined at the beginning of this function
-					if html_pattern.match(filename):
-						html_file_frame = create_html_iframe(file_path, is_in_a1111_dir)
-					if md_pattern.match(filename):
-						# there can only be one markdown file, if one was already found it is replaced
-						md_file = file_path
-					if prompts_pattern.match(filename):
-						# there can only be one prompts file, if one was already found it is replaced
-						prompts_file = file_path
-					if img_pattern.match(filename):
-						# there can be many images, even spread across the multiple paths
-						img_file = file_path
-					if txt_pattern.match(filename):
-						# there can only be one text file, if one was already found it is replaced
-						found_txt_file = file_path
-					
-					# if this file was an image file append the image to the html code list
-					if img_file is not None:
-						html_code_list.append(create_html_img(img_file, is_in_a1111_dir))
+					if (index_models_pattern is not None and index_models_pattern.match(filename)) or filename.lower() == "index.txt":
+						# ignore preview files that strictly match any of the other models in the index file
+						continue
+					if index_has_model:
+						if html_generic_pattern.match(filename):
+							generic_html_file_frame = create_html_iframe(file_path, is_in_a1111_dir)
+						if md_generic_pattern.match(filename):
+							# there can only be one markdown file, if one was already found it is replaced
+							generic_md_file = file_path
+						if prompts_generic_pattern.match(filename):
+							# there can only be one prompts file, if one was already found it is replaced
+							generic_prompts_file = file_path
+						if img_generic_pattern.match(filename):
+							# there can be many images, even spread across the multiple paths
+							img_file = file_path
+						if txt_generic_pattern.match(filename):
+							# there can only be one text file, if one was already found it is replaced
+							generic_found_txt_file = file_path
+				# perform the normal file matching rules for the matching mode determined at the beginning of this function
+				if html_pattern.match(filename):
+					html_file_frame = create_html_iframe(file_path, is_in_a1111_dir)
+				if md_pattern.match(filename):
+					# there can only be one markdown file, if one was already found it is replaced
+					md_file = file_path
+				if prompts_pattern.match(filename):
+					# there can only be one prompts file, if one was already found it is replaced
+					prompts_file = file_path
+				if img_pattern.match(filename):
+					# there can be many images, even spread across the multiple paths
+					img_file = file_path
+				if txt_pattern.match(filename):
+					# there can only be one text file, if one was already found it is replaced
+					found_txt_file = file_path
+
+				# if this file was an image file append the image to the html code list
+				if img_file is not None:
+					html_code_list.append(create_html_img(img_file, is_in_a1111_dir))
 	
 	# if a generic preview file was found but not a specific one, use the generic one
 	if html_file_frame is None and generic_html_file_frame is not None:
@@ -570,111 +573,77 @@ def search_and_display_previews(model_name, paths):
 	# return the all preview files found
 	return html_code_output, md_file, prompts_file, found_txt_file
 
-def get_checkpoints_dirs():
-	# create list of directories
-	directories = [os.path.join('models','Stable-diffusion')] # models/Stable-diffusion
-	set_dir = shared.cmd_opts.ckpt_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
-		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
-		directories.append(set_dir)
-	return directories
 
-def get_embedding_dirs():
-	# create list of directories
-	directories = ['embeddings', os.path.join('models','embeddings')]
-	directories = list(filter(lambda x: os.path.exists(x), directories))
+def check_path(path: str) -> str | None:
+	"""
+	Check a given path exists, replacing the path with None if not.
+	Args:
+		path: The path to check.
 
-	set_dir = shared.cmd_opts.embeddings_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
-		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
-		directories.append(set_dir)
-	return directories
+	Returns:
+		Path or None.
+	"""
+	if path is None:
+		return
+	return path if os.path.exists(path) else None
 
-def get_hypernetwork_dirs():
-	# create list of directories
-	directories = [os.path.join('models','hypernetworks')] # models/hypernetworks
-	set_dir = shared.cmd_opts.hypernetwork_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
-		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
-		directories.append(set_dir)
-	return directories
 
-def get_lora_dirs():
-	# create list of directories
-	directories = []
+def get_checkpoint_dir() -> str | None:
+	return check_path(shared.cmd_opts.ckpt_dir or sd_models.model_path)
 
-	# add models/lora just in case to the list of directories
-	default_dir = os.path.join("models","Lora") # models/Lora
-	if os.path.exists(default_dir) and os.path.isdir(default_dir):
-		directories.append(default_dir)
-	# add directories from the builtin lora extension if exists
-	set_dir = shared.cmd_opts.lora_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
-		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
-		directories.append(set_dir)
-	# add directories from the third party lora extension if exists
-	if additional_networks is not None:
-		# use the same pattern as the additional_networks.py extension to build up a list of paths to check for lora models and preview files
-		set_dir = additional_networks.lora_models_dir
-		if set_dir is not None and not is_dir_in_list(directories, set_dir):
-			directories.append(set_dir)
-		extra_lora_path = shared.opts.data.get("additional_networks_extra_lora_path", None)
-		if extra_lora_path and os.path.exists(extra_lora_path) and not is_dir_in_list(directories, extra_lora_path):
-			directories.append(extra_lora_path)
-	return directories
 
-def get_lycoris_dirs():
-	# create list of directories
-	directories = []
+def get_embedding_dir() -> str | None:
+	return check_path(shared.cmd_opts.embeddings_dir)
 
-	# add directories from the third party lycoris extension if exists
-	if lycoris_module is not None:
-		# add models/lora just in case to the list of directories
-		default_dir = os.path.join("models","LyCORIS") # models/Lora
-		if os.path.exists(default_dir) and os.path.isdir(default_dir):
-			directories.append(default_dir)
-		# add directories from the third party lycoris extension if exists
-		set_dir = shared.cmd_opts.lyco_dir
-		if set_dir is not None and not is_dir_in_list(directories, set_dir):
-			# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
-			directories.append(set_dir)
 
-	return directories
+def get_hypernetwork_dir() -> str | None:
+	return check_path(shared.cmd_opts.hypernetwork_dir)
+
+
+def get_lora_dir() -> str | None:
+	return check_path(shared.cmd_opts.lora_dir)
+
+
+def get_lycoris_dir() -> str | None:
+	return check_path(shared.cmd_opts.lyco_dir)
+
 
 def show_model_preview(modelname=None):
 	# get preview for the model
-	return show_preview(modelname, get_checkpoints_dirs(), "checkpoints")
+	return show_preview(modelname, get_checkpoint_dir(), "checkpoints")
 
 def show_embedding_preview(modelname=None):
 	# get preview for the model
-	return show_preview(modelname, get_embedding_dirs(), "embeddings")
+	return show_preview(modelname, get_embedding_dir(), "embeddings")
 
 def show_hypernetwork_preview(modelname=None):
 	# get preview for the model
-	return show_preview(modelname, get_hypernetwork_dirs(), "hypernetworks")
+	return show_preview(modelname, get_hypernetwork_dir(), "hypernetworks")
 
 def show_lora_preview(modelname=None):
 	# get preview for the model
-	return show_preview(modelname, get_lora_dirs(), "loras")
+	return show_preview(modelname, get_lora_dir(), "loras")
 
 def show_lycoris_preview(modelname=None):
 	# get preview for a LyCORIS
-	return show_preview(modelname, get_lycoris_dirs(), "lycoris")
+	return show_preview(modelname, get_lycoris_dir(), "lycoris")
 
-def show_preview(modelname, paths, tags_key):
-	if modelname is None or len(modelname) == 0 or paths is None or len(paths) == 0:
+
+def show_preview(modelname: str, path: str, tags_key: str):
+	print("showing", modelname, path)
+	if modelname is None or len(modelname) == 0 or path is None:
 		txt_update = gr.Textbox.update(value=None, visible=False)
-		md_update = gr.Textbox.update(value=None, visible=False)		
+		md_update = gr.Textbox.update(value=None, visible=False)	
 		prompts_list_update = gr.CheckboxGroup.update(visible=False)
 		prompts_button_update = gr.Button.update(visible=False)
-		html_update = gr.HTML.update(value='', visible=False)		
+		html_update = gr.HTML.update(value='', visible=False)
 		tags_html = gr.HTML.update(value='', visible=False)
 		return prompts_list_update, prompts_button_update, txt_update, md_update, html_update, tags_html
-	
+
 	# remove the hash if exists, the extension, and if the string is a path just return the file name
 	name = clean_modelname(modelname)
 	# get the preview data
-	html_code, found_md_file, found_prompts_file, found_txt_file = search_and_display_previews(name, paths)
+	html_code, found_md_file, found_prompts_file, found_txt_file = search_and_display_previews(name, path)
 	preview_html = '' if html_code is None else html_code
 
 	# if a text file was found update the gradio text element
