@@ -203,6 +203,8 @@ def list_all_models():
 
 def list_all_embeddings():
 	global embedding_choices
+	# Embeddings may not have been loaded yet. (Fixes empty embeddings list on startup) -n15g
+	sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
 	# get the list of embeddings
 	list = [x for x in sd_hijack.model_hijack.embedding_db.word_embeddings.keys()]
 	list.extend([x for x in sd_hijack.model_hijack.embedding_db.skipped_embeddings.keys()])
@@ -572,29 +574,42 @@ def search_and_display_previews(model_name, paths):
 
 def get_checkpoints_dirs():
 	# create list of directories
-	directories = [os.path.join('models','Stable-diffusion')] # models/Stable-diffusion
+
+	# use the default directory as a fallback for people who want to keep their models outside of the automatic1111 directory but their preview files inside
+	default_dir = os.path.join('models','Stable-diffusion') # models/Stable-diffusion
+	directories = [default_dir] if os.path.exists(default_dir) and os.path.isdir(default_dir) else []
+
+	# add the directory expected by automatic1111 for this type of model (it may be the same as the above model so only add it if its not already added)
 	set_dir = shared.cmd_opts.ckpt_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
+	if set_dir is not None and os.path.exists(set_dir) and os.path.isdir(set_dir) and not is_dir_in_list(directories, set_dir):
 		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
 		directories.append(set_dir)
 	return directories
 
 def get_embedding_dirs():
 	# create list of directories
-	directories = ['embeddings', os.path.join('models','embeddings')]
+
+	# use the default directory as a fallback for people who want to keep their models outside of the automatic1111 directory but their preview files inside
+	directories = ['embeddings', os.path.join('models','embeddings')] # support the Vladmandic fork by also adding models/embeddings as a default location
 	directories = list(filter(lambda x: os.path.exists(x), directories))
 
+	# add the directory expected by automatic1111 for this type of model (it may be the same as the above model so only add it if its not already added)
 	set_dir = shared.cmd_opts.embeddings_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
+	if set_dir is not None and os.path.exists(set_dir) and os.path.isdir(set_dir) and not is_dir_in_list(directories, set_dir):
 		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
 		directories.append(set_dir)
 	return directories
 
 def get_hypernetwork_dirs():
 	# create list of directories
-	directories = [os.path.join('models','hypernetworks')] # models/hypernetworks
+
+	# use the default directory as a fallback for people who want to keep their models outside of the automatic1111 directory but their preview files inside
+	default_dir = os.path.join('models','hypernetworks') # models/hypernetworks
+	directories = [default_dir] if os.path.exists(default_dir) and os.path.isdir(default_dir) else []
+
+	# add the directory expected by automatic1111 for this type of model (it may be the same as the above model so only add it if its not already added)
 	set_dir = shared.cmd_opts.hypernetwork_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
+	if set_dir is not None and os.path.exists(set_dir) and os.path.isdir(set_dir) and not is_dir_in_list(directories, set_dir):
 		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
 		directories.append(set_dir)
 	return directories
@@ -603,23 +618,23 @@ def get_lora_dirs():
 	# create list of directories
 	directories = []
 
-	# add models/lora just in case to the list of directories
+	# add models/lora  directory as a fallback for people who want to keep their models outside of the automatic1111 directory but their preview files inside
 	default_dir = os.path.join("models","Lora") # models/Lora
 	if os.path.exists(default_dir) and os.path.isdir(default_dir):
 		directories.append(default_dir)
 	# add directories from the builtin lora extension if exists
 	set_dir = shared.cmd_opts.lora_dir
-	if set_dir is not None and not is_dir_in_list(directories, set_dir):
+	if set_dir is not None and os.path.exists(set_dir) and os.path.isdir(set_dir) and not is_dir_in_list(directories, set_dir):
 		# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
 		directories.append(set_dir)
 	# add directories from the third party lora extension if exists
 	if additional_networks is not None:
 		# use the same pattern as the additional_networks.py extension to build up a list of paths to check for lora models and preview files
 		set_dir = additional_networks.lora_models_dir
-		if set_dir is not None and not is_dir_in_list(directories, set_dir):
+		if set_dir is not None and os.path.exists(set_dir) and os.path.isdir(set_dir) and not is_dir_in_list(directories, set_dir):
 			directories.append(set_dir)
 		extra_lora_path = shared.opts.data.get("additional_networks_extra_lora_path", None)
-		if extra_lora_path and os.path.exists(extra_lora_path) and not is_dir_in_list(directories, extra_lora_path):
+		if extra_lora_path and os.path.exists(extra_lora_path) and os.path.isdir(extra_lora_path) and not is_dir_in_list(directories, extra_lora_path):
 			directories.append(extra_lora_path)
 	return directories
 
@@ -635,7 +650,7 @@ def get_lycoris_dirs():
 			directories.append(default_dir)
 		# add directories from the third party lycoris extension if exists
 		set_dir = shared.cmd_opts.lyco_dir
-		if set_dir is not None and not is_dir_in_list(directories, set_dir):
+		if set_dir is not None and os.path.exists(set_dir) and os.path.isdir(set_dir) and not is_dir_in_list(directories, set_dir):
 			# WARNING: html files and markdown files that link to local files outside of the automatic1111 directory will not work correctly
 			directories.append(set_dir)
 
