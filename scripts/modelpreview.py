@@ -3,7 +3,7 @@ import os.path
 import re
 import urllib
 import gradio as gr # type: ignore
-from modules import script_callbacks, sd_models, shared, sd_hijack # type: ignore
+from modules import script_callbacks, sd_models, shared, sd_hijack, images # type: ignore
 from PIL import Image
 import base64
 import csv
@@ -385,7 +385,7 @@ def create_html_img(file, is_in_a1111_dir):
 	# load the image to memory (needed for getting the meta data)
 	image.load()
 	# get the prompt data
-	metadata = image.info.get("parameters", None)
+	metadata, _ = images.read_info_from_image(image)
 
 	# set default order to 0
 	order = 0
