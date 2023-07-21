@@ -1,3 +1,4 @@
+import json
 import os
 import os.path
 import re
@@ -67,12 +68,14 @@ refresh_symbol = '🔄'
 update_symbol = '↙️'
 
 html_ext_pattern = r'html'
+civitai_ext_pattern = r'civitai.info'
 md_ext_pattern = r'md'
 txt_ext_pattern = r'txt'
 tags_ext_pattern = r'tags'
 prompts_ext_pattern = r'(?:prompt|prompts)'
 img_ext_pattern = r'(?:png|jpg|jpeg|webp|jxk|avif)'
 all_ext_pattern = r'(?:' + html_ext_pattern\
+				  + r'|' + civitai_ext_pattern\
 				  + r'|' + md_ext_pattern\
 				  + r'|' + txt_ext_pattern\
 				  + r'|' + tags_ext_pattern\
@@ -379,6 +382,130 @@ def create_html_iframe(file, is_in_a1111_dir):
 			html_code = f'<iframe src="data:text/html;charset=UTF-8;base64,{html_data}"></iframe>'
 	return html_code
 
+def create_civitai_info_html(file):
+	# initialize the info object
+	data = {}
+
+	# read the civitai.info file
+	if os.path.isfile(file):
+		with open(file, 'r') as f:
+			data = json.load(f)
+		f.close()
+
+	# build the html
+	civitai_info_html = [f"""<div class='civitai-info'>
+	<h1 id="ci-name">{data.get('name','')}</h1>
+	<ul>
+    <li><strong>ID:</strong> <span id="ci-id">{data.get('id','')}</span></li>
+    <li><strong>Model ID:</strong> <a id="ci-modelId" href="https://civitai.com/models/data.get('modelId','')" target="_blank">{data.get('modelId','')}</a></li>
+    <li><strong>Created At:</strong> <span id="ci-createdAt">{data.get('createdAt','')}</span></li>
+    <li><strong>Updated At:</strong> <span id="ci-updatedAt">{data.get('updatedAt','')}</span></li>
+    <li><strong>Base Model:</strong> <span id="ci-baseModel">{data.get('baseModel','')}</span></li>
+	<li><strong>Trained Words:</strong> <span id="ci-trainedWords">{"None Specified" if (not data.get('trainedWords',None) or len(data.get('trainedWords',[])) == 0) else "<ul><li>" + "</li><li>".join(data.get('trainedWords',[])) + "</li></ul>"}</span></li>
+    <li><strong>Early Access Time Frame:</strong> <span id="ci-earlyAccessTimeFrame">{data.get('earlyAccessTimeFrame','')}</span></li>
+    </ul>
+	<details open>
+		<summary><strong>Description:</strong></summary>
+    	<div id="ci-description">{data.get('description','')}</div>
+	</details>
+	<details>
+  		<summary><strong>Stats:</strong></summary>
+		<ul>
+			<li><strong>Download Count:</strong> <span id="ci-downloadCount">{data.get('stats',{}).get('downloadCount','')}</span></li>
+			<li><strong>Rating Count:</strong> <span id="ci-ratingCount"{data.get('stats',{}).get('ratingCount','')}></span></li>
+			<li><strong>Rating:</strong> <span id="ci-rating">{data.get('stats',{}).get('rating','')}</span></li>
+		</ul>
+	</details>
+	<details>
+  		<summary><strong>Model Information:</strong></summary>
+		<ul>
+			<li><strong>Name:</strong> <span id="ci-modelName">{data.get('model',{}).get('name','')}</span></li>
+			<li><strong>Type:</strong> <span id="ci-modelType">{data.get('model',{}).get('type','')}</span></li>
+			<li><strong>NSFW:</strong> <span id="ci-modelNsfw">{data.get('model',{}).get('nsfw','')}</span></li>
+			<li><strong>POI:</strong> <span id="ci-modelPoi">{data.get('model',{}).get('poi','')}</span></li>
+		</ul>
+	</details>
+	<details>
+		<summary><strong>Files:</strong></summary>
+	"""]
+
+	for i, data_file in enumerate(data.get('files',[])):
+		civitai_info_html.append(f"""<details>
+			<summary><strong id="ci-fileName-{i}">{data_file.get('name','')}</strong></summary>
+			<ul>
+				<li><strong>ID:</strong> <span id="ci-fileId-{i}">{data_file.get('id','')}</span></li>
+				<li><strong>Size (KB):</strong> <span id="ci-fileSizeKB-{i}">{data_file.get('sizeKB','')}</span></li>
+				<li><strong>Type:</strong> <span id="ci-fileType-{i}">{data_file.get('type','')}</span></li>
+				<li><strong>Format:</strong> <span id="ci-fileFormat-{i}">{data_file.get('metadata',{}).get('format','')}</span></li>
+				<li><strong>Fp:</strong> <span id="ci-fileFp-{i}">{data_file.get('metadata',{}).get('fp','')}</span></li>
+				<li><strong>Size:</strong> <span id="ci-fileSize-{i}">{data_file.get('metadata',{}).get('size','')}</span></li>
+				<li><strong>Pickle Scan Result:</strong> <span id="ci-pickleScanResult-{i}">{data_file.get('pickleScanResult','')}</span></li>
+				<li><strong>Pickle Scan Message:</strong> <span id="ci-pickleScanMessage-{i}">{data_file.get('pickleScanMessage','')}</span></li>
+				<li><strong>Virus Scan Result:</strong> <span id="ci-virusScanResult-{i}">{data_file.get('virusScanResult','')}</span></li>
+				<li><strong>Scanned At:</strong> <span id="ci-scannedAt-{i}">{data_file.get('scannedAt','')}</span></li>
+				<li><strong>Download URL:</strong> <a id="ci-downloadUrl-{i}" href="{data_file.get('downloadUrl','')}" target="_blank">{data_file.get('downloadUrl','')}</a></li> 
+			</ul>
+		</details>
+		""")
+
+	civitai_info_html.append("""</details>
+		<br>
+		<div id="ci-images" class="img-container-set">
+		""")
+	
+	for i, image in enumerate(data.get('images',[])):
+
+		# Create the meta list items using a for loop
+		meta_data = image.get('meta',{})
+		meta_list_items = "\n".join([f"<li><strong>{key}:</strong> {meta_data.get(key,'')}</li>" for key in meta_data])
+
+		civitai_info_html.append(f"""<div><div class='img-container'>
+			<img id="ci-image-{i}" src="{image.get('url','')}" onclick="imageZoomIn(event)" />
+			""")
+
+		# if there is prompt/meta data
+		if meta_data:
+			# Build the meta data that will be copied when you press the copy button
+			meta_tags = list(meta_data.keys())
+			meta_out = []
+			if "prompt" in meta_tags:
+				meta_out.append(f"{image['meta']['prompt']}\n")
+			if "negativePrompt" in meta_tags:
+				meta_out.append(f"Negative prompt: {image['meta']['negativePrompt']}\n")
+			for i, tag in enumerate(meta_tags):
+				if tag == "cfgScale":
+					# Add the cfgScale meta data to the output string
+					meta_out.append(f"CFG scale: {image['meta']['cfgScale']}, ")
+				elif tag != "prompt" and tag != "negativePrompt" and tag != "resources" and tag != "hashes":
+					# Add the other meta data to the output string, convert the tag to Proper case
+					meta_out.append(re.sub(r'\b\w', lambda x: x.group(0).upper(), tag, count=1) + ": " + str(image['meta'][tag]) + ", ")
+			# Remove any trailing commas or whitespace
+			meta_out_string = "".join(meta_out).rstrip(", ")
+
+			# Add the button and an invisible textarea that will let you copy the meta data as a prompt
+			if meta_out_string.strip() != "":
+				civitai_info_html.append('<div class="img-meta-ico" title="Copy Metadata" onclick="metaDataCopy(event)"></div>')
+				civitai_info_html.append(f'<textarea class="img-meta">{meta_out_string}</textarea>')
+
+		civitai_info_html.append(f"""</div>
+			<details>
+				<summary><strong>Properties:</strong></summary>
+				<ul>
+					<li><strong>URL:</strong> <a id="ci-image-URL-{i}" href="{image.get('url','')}" target="_blank">{image.get('url','')}</a></li>
+					<li><strong>NSFW:</strong> <span id="ci-image-nsfw-{i}">{image.get('nsfw','')}</span></li>
+					<li><strong>Meta:</strong>
+						<ul id="ci-image-meta-{i}">
+							{meta_list_items}
+						</ul>
+					</li>
+				</ul>
+			</details>
+		</div>
+		""")
+
+	civitai_info_html.append("</div></div>")
+	return "".join(civitai_info_html)
+
 def create_html_img(file, is_in_a1111_dir):
 	# create the html to display an image along with its meta data
 	image = Image.open(file)
@@ -419,6 +546,7 @@ def create_html_img(file, is_in_a1111_dir):
 
 def search_and_display_previews(model_name, paths):
 	html_generic_pattern = re.compile(r'^.*(?i:\.' + html_ext_pattern + r')$')
+	civitai_generic_pattern = re.compile(r'^.*(?i:\.' + civitai_ext_pattern + r')$')
 	md_generic_pattern = re.compile(r'^.*(?i:\.' + md_ext_pattern + r')$')
 	txt_generic_pattern = re.compile(r'^.*(?i:\.' + txt_ext_pattern + r')$')
 	prompts_generic_pattern = re.compile(r'^.*(?i:\.' + prompts_ext_pattern + r')$')
@@ -431,6 +559,8 @@ def search_and_display_previews(model_name, paths):
 		# The rules for strict naming are:
 		# HTML previews should follow {model}.html example 'checkpoint1000.html'
 		html_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + html_ext_pattern+ r')$')
+		# Civitai info files should follow {model}.civitai.info
+		civitai_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + civitai_ext_pattern+ r')$')
 		# Markdown previews should follow {model}.md example 'checkpoint1000.md'
 		md_pattern = re.compile(r'^' + re.escape(model_name) + r'(?i:\.' + md_ext_pattern+ r')$')
 		# Prompt lists should follow {model}.prompt example 'checkpoint1000.prompt'
@@ -446,6 +576,7 @@ def search_and_display_previews(model_name, paths):
 	elif shared.opts.model_preview_xd_name_matching == "Folder":
 		# use a folder name matching that only requires the model name to show up somewhere in the folder path not the file name name
 		html_pattern = html_generic_pattern
+		civitai_pattern = civitai_generic_pattern
 		md_pattern = md_generic_pattern
 		txt_pattern = txt_generic_pattern
 		prompts_pattern = prompts_generic_pattern
@@ -453,6 +584,7 @@ def search_and_display_previews(model_name, paths):
 	else:
 		# use a loose name matching that only requires the model name to show up somewhere in the file name
 		html_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + html_ext_pattern + r')$')
+		civitai_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + civitai_generic_pattern + r')$')
 		md_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + md_ext_pattern + r')$')
 		txt_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + txt_ext_pattern + r')$')
 		prompts_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + prompts_ext_pattern + r')$')
@@ -468,6 +600,8 @@ def search_and_display_previews(model_name, paths):
 	prompts_file = None
 	# if an html file is found the iframe
 	html_file_frame = None
+	# if an civitai.info file is found the generated html
+	civitai_info_html = None
 
 	# if a text file is found
 	generic_found_txt_file = None
@@ -477,6 +611,8 @@ def search_and_display_previews(model_name, paths):
 	generic_prompts_file = None
 	# if an html file is found the iframe
 	generic_html_file_frame = None
+	# if an civitai.info file is found the generated html
+	generic_civitai_info_html = None
 
 	# get the current directory so we can convert absolute paths to relative paths if we need to
 	current_directory = os.getcwd()
@@ -519,7 +655,11 @@ def search_and_display_previews(model_name, paths):
 							continue
 						if index_has_model:
 							if html_generic_pattern.match(filename):
+								# there can only be one html file, if one was already found it is replaced
 								generic_html_file_frame = create_html_iframe(file_path, is_in_a1111_dir)
+							if civitai_generic_pattern.match(filename):
+								# there can only be one civitai.info file, if one was already found it is replaced
+								generic_civitai_info_html = create_civitai_info_html(file_path)
 							if md_generic_pattern.match(filename):
 								# there can only be one markdown file, if one was already found it is replaced
 								generic_md_file = file_path
@@ -534,7 +674,11 @@ def search_and_display_previews(model_name, paths):
 								generic_found_txt_file = file_path
 					# perform the normal file matching rules for the matching mode determined at the beginning of this function
 					if html_pattern.match(filename):
+						# there can only be one html file, if one was already found it is replaced
 						html_file_frame = create_html_iframe(file_path, is_in_a1111_dir)
+					if civitai_pattern.match(filename):
+						# there can only be one civitai.info file, if one was already found it is replaced
+						civitai_info_html = create_civitai_info_html(file_path)
 					if md_pattern.match(filename):
 						# there can only be one markdown file, if one was already found it is replaced
 						md_file = file_path
@@ -555,6 +699,8 @@ def search_and_display_previews(model_name, paths):
 	# if a generic preview file was found but not a specific one, use the generic one
 	if html_file_frame is None and generic_html_file_frame is not None:
 		html_file_frame = generic_html_file_frame
+	if civitai_info_html is None and generic_civitai_info_html is not None:
+		civitai_info_html = generic_civitai_info_html
 	if md_file is None and generic_md_file is not None:
 		md_file = generic_md_file
 	if prompts_file is None and generic_prompts_file is not None:
@@ -565,6 +711,10 @@ def search_and_display_previews(model_name, paths):
 	# if an html file was found, ignore other txt, md, or image preview files and return the html file and prompt file if available
 	if html_file_frame is not None:
 		return html_file_frame, None, prompts_file, None
+
+	# if an civitai.info file was found, ignore other txt, md, or image preview files and return the html created and prompt file if available
+	if civitai_info_html is not None:
+		return civitai_info_html, None, prompts_file, None
 
 	# if there were images found, wrap the images in a container div
 	html_code_output = '<div class="img-container-set">' + ''.join(html_code_list) + '</div>' if len(html_code_list) > 0 else None
