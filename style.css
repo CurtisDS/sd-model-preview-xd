@@ -36,8 +36,9 @@
 	width: min-content;
 }
 
-#tab_modelpreview_xd_interface .civitai-info summary {
+#tab_modelpreview_xd_interface .civitai-info details summary {
 	cursor: pointer;
+	display: inline list-item;
 }
 
 #tab_modelpreview_xd_interface .civitai-info details > :not(:first-child) {
@@ -210,14 +211,7 @@
 	cursor: zoom-in;
 }
 
-@media (max-height: 1000px) {
-    #tab_modelpreview_xd_interface .modelpreview_xd_html_div .img-container-set .img-container {
-		width: 193px;
-		height: 194px;
-	}
-}
-
-@media (max-width: 1300px) {
+@media (max-height: 1000px), (max-width: 1300px) {
     #tab_modelpreview_xd_interface .modelpreview_xd_html_div .img-container-set .img-container {
 		width: 193px;
 		height: 194px;

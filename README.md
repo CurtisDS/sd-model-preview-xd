@@ -71,6 +71,25 @@ This extension supports the following model types in the the default directories
       ***Note**: An update to gradio has caused an issue that cuts off the model select dropdown when using the `limit height` option so it has been removed for now. If I can get it to work again I will bring it back.*
 
       ![screenshot of difference between limit height and not limit height](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd-height-limit.gif)
+   
+6. <a name="tips-6"></a>If the image previews are too small or too big for you, add the following css to your `user.css` file (If the file doesn't exist then create it in the root of your Automatic1111 folder). Edit the width and height values accordingly:
+
+      ```css
+      /* custom CSS for sd-model-preview-xd preview image sizes */
+      #tab_modelpreview_xd_interface .modelpreview_xd_html_div .img-container-set .img-container {
+            /* default width and height */
+            width: 293px;
+            height: 294px;
+      }
+      
+      @media (max-height: 1000px), (max-width: 1300px) {
+            /* intended to shrink the images when the height or width of the browser window is less than 1000px or 1300px respectively */
+            #tab_modelpreview_xd_interface .modelpreview_xd_html_div .img-container-set .img-container {
+                  width: 193px;
+                  height: 194px;
+            }
+      }
+      ```
 
 ## Things to watch out for
 

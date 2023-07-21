@@ -397,7 +397,7 @@ def create_civitai_info_html(file):
 	<h1 id="ci-name">{data.get('name','')}</h1>
 	<ul>
     <li><strong>ID:</strong> <span id="ci-id">{data.get('id','')}</span></li>
-    <li><strong>Model ID:</strong> <a id="ci-modelId" href="https://civitai.com/models/data.get('modelId','')" target="_blank">{data.get('modelId','')}</a></li>
+    <li><strong>Model ID:</strong> <a id="ci-modelId" href="https://civitai.com/models/{data.get('modelId','')}" target="_blank">{data.get('modelId','')}</a></li>
     <li><strong>Created At:</strong> <span id="ci-createdAt">{data.get('createdAt','')}</span></li>
     <li><strong>Updated At:</strong> <span id="ci-updatedAt">{data.get('updatedAt','')}</span></li>
     <li><strong>Base Model:</strong> <span id="ci-baseModel">{data.get('baseModel','')}</span></li>
