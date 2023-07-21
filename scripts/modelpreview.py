@@ -459,7 +459,7 @@ def create_civitai_info_html(file):
 		meta_data = image.get('meta',{})
 		meta_list_items = "\n".join([f"<li><strong>{key}:</strong> {meta_data.get(key,'')}</li>" for key in meta_data])
 
-		civitai_info_html.append(f"""<div><div class='img-container'>
+		civitai_info_html.append(f"""<div class='img-prop-container'><div class='img-container'>
 			<img id="ci-image-{i}" src="{image.get('url','')}" onclick="imageZoomIn(event)" />
 			""")
 
@@ -488,7 +488,7 @@ def create_civitai_info_html(file):
 				civitai_info_html.append(f'<textarea class="img-meta">{meta_out_string}</textarea>')
 
 		civitai_info_html.append(f"""</div>
-			<details>
+			<details class='img-properties-list'>
 				<summary><strong>Properties:</strong></summary>
 				<ul>
 					<li><strong>URL:</strong> <a id="ci-image-URL-{i}" href="{image.get('url','')}" target="_blank">{image.get('url','')}</a></li>

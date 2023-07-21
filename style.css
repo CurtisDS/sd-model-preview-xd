@@ -32,6 +32,9 @@
 	justify-content: space-between;
 }
 
+#tab_modelpreview_xd_interface .civitai-info .img-prop-container {
+	width: min-content;
+}
 
 #tab_modelpreview_xd_interface .civitai-info summary {
 	cursor: pointer;
@@ -56,8 +59,8 @@
 	margin-top: 0;
 }
 
-#tab_modelpreview_xd_interface .civitai-info .img-container + details {
-	width: min-content;
+#tab_modelpreview_xd_interface .civitai-info .img-prop-container .img-properties-list {
+	word-break: break-word;
 }
 
 #tab_modelpreview_xd_interface .civitai-info ul ul {
