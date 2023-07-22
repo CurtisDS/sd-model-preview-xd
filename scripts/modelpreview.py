@@ -455,9 +455,11 @@ def create_civitai_info_html(file):
 	
 	for i, image in enumerate(data.get('images',[])):
 
-		# Create the meta list items using a for loop
-		meta_data = image.get('meta',{})
-		meta_list_items = "\n".join([f"<li><strong>{key}:</strong> {meta_data.get(key,'')}</li>" for key in meta_data])
+		# Get the meta data object from the image
+		meta_data = image.get('meta', None)
+
+		# Initialize html meta list as not found incase its empty
+		meta_list_items = "<li>No Meta Data Found</li>"
 
 		civitai_info_html.append(f"""<div class='img-prop-container'><div class='img-container'>
 			<img id="ci-image-{i}" src="{image.get('url','')}" onclick="imageZoomIn(event)" />
@@ -465,7 +467,10 @@ def create_civitai_info_html(file):
 
 		# if there is prompt/meta data
 		if meta_data:
-			# Build the meta data that will be copied when you press the copy button
+			# Create the HTML list of all the meta data keys
+			meta_list_items = "\n".join([f"<li><strong>{key}:</strong> {meta_data.get(key,'')}</li>" for key in meta_data])
+
+			# Build the meta data string that will be copied when you press the copy button
 			meta_tags = list(meta_data.keys())
 			meta_out = []
 			if "prompt" in meta_tags:
@@ -584,7 +589,7 @@ def search_and_display_previews(model_name, paths):
 	else:
 		# use a loose name matching that only requires the model name to show up somewhere in the file name
 		html_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + html_ext_pattern + r')$')
-		civitai_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + civitai_generic_pattern + r')$')
+		civitai_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + civitai_ext_pattern + r')$')
 		md_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + md_ext_pattern + r')$')
 		txt_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + txt_ext_pattern + r')$')
 		prompts_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + prompts_ext_pattern + r')$')
