@@ -7,7 +7,7 @@
 	flex: 1;
 }
 
-.extra-network-thumbs .card .actions .additional a.info {
+/* .extra-network-thumbs .card .actions .additional a.info {
 	left: unset;
 	right: -3px;
 	background: none;
@@ -16,20 +16,24 @@
 	text-shadow: 0px 0px 5px black;
 	top: -3px;
 	user-select: all;
-}
+} */
 
-.extra-network-cards .card .metadata-button, .extra-network-thumbs .card .metadata-button {
+/* .extra-network-cards .card .metadata-button, .extra-network-thumbs .card .metadata-button {
 	padding: 0;
 	font-size: 17pt;
 	width: 1em;
 	right: calc(50% - 0.5em);
 	height: 1em;
 	top: -3px;
-  }
+} */
 
-.extra-network-cards .card .actions:hover .additional{
+/* .extra-network-cards .card .actions:hover .additional{
     display: flex;
 	justify-content: space-between;
+} */
+
+.extra-network-cards .card .previewXD-button::before {
+	content: "℗"
 }
 
 #tab_modelpreview_xd_interface .civitai-info .img-prop-container {

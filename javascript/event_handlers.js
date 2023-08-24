@@ -170,16 +170,15 @@ onUiUpdate(function() {
   }
 
   // get the thumb cards and inject a link that will pop the user back to the preview tab for that model
-  let thumbCards = gradioApp().querySelectorAll("#txt2img_extra_tabs .card .actions .additional:not([preview-hijack]), #img2img_extra_tabs .card .actions .additional:not([preview-hijack])");
+  let thumbCards = gradioApp().querySelectorAll("#txt2img_extra_tabs .card:not([preview-hijack]), #img2img_extra_tabs .card:not([preview-hijack])");
   if(typeof thumbCards != "undefined" && thumbCards != null && thumbCards.length > 0) {
     thumbCards.forEach(card => {
-      let actionsElement = card.parentNode;
+      let buttonRow = card.querySelector('.button-row');
       // the name of the model is stored in a span beside the .additional div
-      let nameSpan = actionsElement.querySelector('span.name');
-      let modelName = nameSpan.textContent;
+      let modelName = card.getAttribute('data-name');
       
       // get the id of the parent div to check what type of model this thumb card is for
-      let cardNetwork = actionsElement.parentNode.parentNode;
+      let cardNetwork = card.parentNode;
       let id = cardNetwork.getAttribute("id");
 
       let modelToSelect = '';
@@ -210,10 +209,16 @@ onUiUpdate(function() {
         break;
       }
 
-      // build out a new <ul> and <a> tag for linking to the preview tab
-      let ul = document.createElement("ul");
-      ul.innerHTML = `<a href="#" onclick="doCardClick(event, '${modelName}', '${modelToSelect}')" title="Go To Preview" target="_blank" class="info">℗</a>`;
-      card.append(ul);
+      // build out a new button to link to the preview tab
+      let previewXD_Btn = document.createElement("div");
+      previewXD_Btn.className = "previewXD-button card-button info";
+      previewXD_Btn.title = "Go To Preview";
+      previewXD_Btn.onclick = function(event) {
+          doCardClick(event, modelName, modelToSelect);
+      };
+      buttonRow.prepend(previewXD_Btn);
+
+      // we are finished so add the hijack attribute so we know not we don't need to do this card again
       card.setAttribute("preview-hijack", true);
     });
   }

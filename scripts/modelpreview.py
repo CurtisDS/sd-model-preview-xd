@@ -791,6 +791,10 @@ def get_lora_dirs():
 		extra_lora_path = shared.opts.data.get("additional_networks_extra_lora_path", None)
 		if extra_lora_path and os.path.exists(extra_lora_path) and os.path.isdir(extra_lora_path) and not is_dir_in_list(directories, extra_lora_path):
 			directories.append(extra_lora_path)
+	# add models/LyCORIS if exists to support backwards compatibility with people who still have their LyCORIS models in a seperate folder
+	lycoris_dir = os.path.join("models","LyCORIS") # models/LyCORIS
+	if os.path.exists(lycoris_dir) and os.path.isdir(lycoris_dir):
+		directories.append(lycoris_dir)
 	return directories
 
 def get_lycoris_dirs():
@@ -799,8 +803,8 @@ def get_lycoris_dirs():
 
 	# add directories from the third party lycoris extension if exists
 	if lycoris_module is not None:
-		# add models/lora just in case to the list of directories
-		default_dir = os.path.join("models","LyCORIS") # models/Lora
+		# add models/LyCORIS just in case to the list of directories
+		default_dir = os.path.join("models","LyCORIS") # models/LyCORIS
 		if os.path.exists(default_dir) and os.path.isdir(default_dir):
 			directories.append(default_dir)
 		# add directories from the third party lycoris extension if exists
