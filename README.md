@@ -56,15 +56,9 @@ This extension supports the following model types in the the default directories
 
       ![screenshot of text and images example](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd-text-and-image-example.png)
 
-4. <a name="tips-4"></a>You can now be linked directly to the preview files of a model by clicking on the `ⓘ` in the extra networks thumbnail cards.
+4. <a name="tips-4"></a>You can now be linked directly to the preview files of a model by clicking on the `℗` in the extra networks thumbnail cards.
 
-      - When `Default view for Extra Networks` is set to `cards`:
-
-          ![screenshot of extra networks card link to preview](https://user-images.githubusercontent.com/20732674/216813267-c8539ae3-c318-42fa-b5db-f89176993fbc.png)
-
-      - When `Default view for Extra Networks` is set to `thumbs`:
-
-          ![screenshot of extra networks card link to preview](https://user-images.githubusercontent.com/20732674/216813283-2e4f874f-3afa-4088-98eb-95bff0566ec8.png)
+      ![image](https://github.com/CurtisDS/sd-model-preview-xd/assets/20732674/34c3036e-f269-47e3-8709-e27b920a80c4)
 
 5. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
       
