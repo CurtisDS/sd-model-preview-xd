@@ -68,8 +68,6 @@ This extension supports the following model types in the the default directories
 
 5. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
       
-      ***Note**: An update to gradio has caused an issue that cuts off the model select dropdown when using the `limit height` option so it has been removed for now. If I can get it to work again I will bring it back.*
-
       ![screenshot of difference between limit height and not limit height](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd-height-limit.gif)
    
 6. <a name="tips-6"></a>If the image previews are too small or too big for you, add the following css to your `user.css` file (If the file doesn't exist then create it in the root of your Automatic1111 folder). Edit the width and height values accordingly:

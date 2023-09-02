@@ -1001,8 +1001,7 @@ def on_ui_tabs():
 	# create a gradio block
 	with gr.Blocks() as modelpreview_interface:
 
-		# limitHeight = shared.opts.model_preview_xd_limit_sizing # this option broke with the new gradio, will always act as FALSE now to avoid issues
-		limitHeight = False
+		limitHeight = shared.opts.model_preview_xd_limit_sizing
 
 		gr.HTML(elem_id='modelpreview_xd_setting', value='<script id="modelpreview_xd_setting_json" type="application/json">{ "LimitSize": ' + ( "true" if limitHeight else "false" ) + ' }</script>', visible=False)
 
@@ -1049,7 +1048,7 @@ def on_ui_tabs():
 def on_ui_settings():
 	section = ('model_preview_xd', "Model Preview XD")
 	shared.opts.add_option("model_preview_xd_name_matching", shared.OptionInfo("Loose", "Name matching rule for preview files", gr.Radio, {"choices": ["Loose", "Strict", "Folder", "Index"]}, section=section))
-	# shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window (.html preview files are always limited regardless of this setting)", section=section)) # this option broke with the new gradio, will always act as FALSE now to avoid issues
+	shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window (.html preview files are always limited regardless of this setting)", section=section))
 
 script_callbacks.on_ui_settings(on_ui_settings)
 script_callbacks.on_ui_tabs(on_ui_tabs)

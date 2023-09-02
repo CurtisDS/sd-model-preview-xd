@@ -54,7 +54,7 @@ onUiUpdate(function() {
   // Get the element and set the attribute to limit the height
   let tabEl = gradioApp().getElementById('tab_modelpreview_xd_interface');
   let jsonEl = gradioApp().getElementById('modelpreview_xd_setting_json');
-  if (typeof tabEl != 'undefined' && typeof jsonEl != 'undefined') {
+  if (typeof tabEl != 'undefined' && tabEl != null && typeof jsonEl != 'undefined' && jsonEl != null) {
     let settingsJSON = JSON.parse(jsonEl.innerHTML);
     if (settingsJSON.LimitSize) {
       tabEl.setAttribute('limit-height', '');

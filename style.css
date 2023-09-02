@@ -1,36 +1,14 @@
 
-.gradio-container > .flex > div.mx-auto.container, div.main > div.wrap > div.contain {
+.gradio-container > .flex > div.mx-auto.container,
+div.main > div.wrap > div.contain {
 	display: flex;
 }
 
-#tabs {
+#tabs, div.main > div.wrap > div.contain > * {
 	flex: 1;
+	display: flex;
+	flex-direction: column;
 }
-
-/* .extra-network-thumbs .card .actions .additional a.info {
-	left: unset;
-	right: -3px;
-	background: none;
-	font-size: 18pt;
-	color: white;
-	text-shadow: 0px 0px 5px black;
-	top: -3px;
-	user-select: all;
-} */
-
-/* .extra-network-cards .card .metadata-button, .extra-network-thumbs .card .metadata-button {
-	padding: 0;
-	font-size: 17pt;
-	width: 1em;
-	right: calc(50% - 0.5em);
-	height: 1em;
-	top: -3px;
-} */
-
-/* .extra-network-cards .card .actions:hover .additional{
-    display: flex;
-	justify-content: space-between;
-} */
 
 .extra-network-cards .card .previewXD-button::before {
 	content: "℗"
@@ -81,12 +59,7 @@
 	overflow: auto;
 }
 
-#tab_modelpreview_xd_interface:not([limit-height]) > div {
-	position: relative;
-	height: 100%;
-}
-
-#tab_modelpreview_xd_interface[limit-height] > div {
+#tab_modelpreview_xd_interface > div {
 	position: relative;
 	height: 100%;
 }
@@ -98,6 +71,8 @@
 #tab_modelpreview_xd_interface > div > .tabs {
 	height: 100%;
 	max-height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 #tab_modelpreview_xd_interface > div > .tabs > .tabitem {
@@ -130,6 +105,16 @@
 
 #tab_modelpreview_xd_interface .modelpreview_xd_flexcolumn_row {
 	flex-direction: column;
+}
+
+#tab_modelpreview_xd_interface[limit-height] .modelpreview_xd_html_row  {
+	position: relative;
+}
+
+#tab_modelpreview_xd_interface[limit-height] .modelpreview_xd_html_row > .modelpreview_xd_flexcolumn_row {
+	position: absolute;
+	height: 100%;
+	flex-wrap: nowrap;
 }
 
 #tab_modelpreview_xd_interface .footer-tags {
