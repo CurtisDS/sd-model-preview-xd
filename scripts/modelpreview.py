@@ -917,7 +917,7 @@ def create_tab(tab_label, tab_id_key, list_choices, show_preview_fn, filter_fn, 
 			update_model_button = gr.Button(value=update_symbol, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model", elem_classes="modelpreview_xd_update_sd_model")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_prompts_row", elem_classes="modelpreview_xd_prompts_row"):
 			prompts_list = gr.Checkboxgroup(label="Prompts", visible=False, interactive=True, elem_id=f"{tab_id_key}_modelpreview_xd_prompts_list", elem_classes="modelpreview_xd_prompts_list")
-			prompts_copy_button = gr.Button(value="Copy", type='secondary', visible=False, interactive=True, elem_id=f"{tab_id_key}_modelpreview_xd_prompts_copy_button", elem_classes="modelpreview_xd_prompts_copy_button")
+			prompts_copy_button = gr.Button(value="Copy", visible=False, interactive=True, elem_id=f"{tab_id_key}_modelpreview_xd_prompts_copy_button", elem_classes="modelpreview_xd_prompts_copy_button")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_notes_row", elem_classes="modelpreview_xd_notes_row"):
 			notes_text_area = gr.Textbox(label='Notes', interactive=False, lines=1, visible=False, elem_id=f"{tab_id_key}_modelpreview_xd_update_sd_model_text_area", elem_classes="modelpreview_xd_update_sd_model_text_area")
 		with gr.Row(elem_id=f"{tab_id_key}_modelpreview_xd_html_row", elem_classes="modelpreview_xd_html_row"):
