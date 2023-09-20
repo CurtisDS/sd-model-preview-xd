@@ -167,6 +167,17 @@ onUiUpdate(function() {
         previewTab = tab;
       }
     });
+
+    if(previewTab == null && typeof tabEl != 'undefined' && tabEl != null) {
+      // the tab button wasn't found so use this backup method to find the proper tab button
+      // get the parent of the extensions tab and find the position within its parent. This will be the tabs div.
+      // note that the parent contains a div for the tab button row and a div for each tab content
+      // so the button position will be 1 less than the index
+      var tabIndex = Array.from(tabEl.parentElement.children).indexOf(tabEl);
+      if(tabs.length >= tabIndex) {
+        previewTab = tabs[tabIndex - 1];
+      }
+    }
   }
 
   // get the thumb cards and inject a link that will pop the user back to the preview tab for that model

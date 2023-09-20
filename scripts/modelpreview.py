@@ -115,13 +115,9 @@ def natural_order_number(s):
 	return [int(x) if x.isdigit() else x.lower() for x in re.split('(\d+)', s)]
 
 def clean_modelname(modelname):
-	# convert the extension to lowercase if it exists
-	name, ext = os.path.splitext(modelname)
-	ext = ext.lower()
-	modelname = name + ext	
 	# remove the extension and the hash if it exists at the end of the model name (this is added by a1111) and 
 	# if the model name contains a path (which happens when a checkpoint is in a subdirectory) just return the model name portion
-	return re.sub(r"(\.pt|\.bin|\.ckpt|\.safetensors)?( \[[a-fA-F0-9]{10,12}\]|\([a-fA-F0-9]{10,12}\))?$", "", modelname).split("\\")[-1].split("/")[-1]
+	return re.sub(r"(?i)(\.pt|\.bin|\.ckpt|\.safetensors)?( \[[a-f0-9]{10,12}\]|\([a-f0-9]{10,12}\))?$", "", modelname).split("\\")[-1].split("/")[-1]
 
 # keep a copy of the choices to give control to user when to refresh
 checkpoint_choices = []
