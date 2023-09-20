@@ -243,59 +243,84 @@ function doCardClick(event, name, modelType) {
   // get the tabs that are in the preview extension
   let tabs = gradioApp().querySelectorAll("#tab_modelpreview_xd_interface > div:first-of-type button");
   if(typeof tabs != "undefined" && tabs != null && tabs.length > 0) {
+    foundTab = null;
     tabs.forEach(tab => {
       if(tab.innerText.trim() == modelType) {
-        // click on the tab to activate it
-        tab.click();
-        
-        let modelNameID = null;
-        let modelUpdateID = null;
-
-        // get the appropriate ids for the invisible text and button elements that will let us programmatically set the dropdown later
-        switch (modelType) {
-          case "Hypernetwork":
-            modelNameID = "hn_modelpreview_xd_update_sd_model_text";
-            modelUpdateID = "hn_modelpreview_xd_update_sd_model";
-          break;
-          case "Lora":
-            modelNameID = "lo_modelpreview_xd_update_sd_model_text";
-            modelUpdateID = "lo_modelpreview_xd_update_sd_model";
-          break;
-          case "LyCORIS":
-            modelNameID = "ly_modelpreview_xd_update_sd_model_text";
-            modelUpdateID = "ly_modelpreview_xd_update_sd_model";
-          break;
-          case "Embeddings":
-            modelNameID = "em_modelpreview_xd_update_sd_model_text";
-            modelUpdateID = "em_modelpreview_xd_update_sd_model";
-          break;
-          case "Checkpoints":
-            modelNameID = "cp_modelpreview_xd_update_sd_model_text";
-            modelUpdateID = "cp_modelpreview_xd_update_sd_model";
-          break;
-        }
-
-        // get the text area and the button
-        let modelName = gradioApp().querySelector(`#${modelNameID} textarea`);
-        let modelUpdate = gradioApp().querySelector(`#${modelUpdateID}`);
-
-        if(typeof modelName != "undefined" && modelName != null && 
-           typeof modelUpdate != "undefined" && modelUpdate != null) {
-          // set the textarea's value
-          modelName.value = name;
-          
-          // dispatch an event to trigger the gradio update for the textarea
-          const inputEvent = new Event("input");
-          modelName.dispatchEvent(inputEvent);
-          // click the update button to trigger the python code to set the dropdown
-          modelUpdate.click();
-          // click on the model preview tab now that we have selected the right preview
-          setTimeout((event) => {
-            previewTab.click();
-          }, 100);
-        }
+        foundTab = tab;
       }
     });
+
+    if(foundTab == null) {
+      // use backup method for finding the button if string compare doesn't work. This is a temporary fix until new gradio update with button ids.
+      switch (modelType) {
+        case "Hypernetwork":
+          foundTab = tabs[2];
+        break;
+        case "Lora":
+          foundTab = tabs[3];
+        break;
+        case "Embeddings":
+          foundTab = tabs[1];
+        break;
+        case "Checkpoints":
+          foundTab = tabs[0];
+        break;
+      }
+    }
+
+    if(foundTab != null) {
+      tab = foundTab;
+
+      // click on the tab to activate it
+      tab.click();
+      
+      let modelNameID = null;
+      let modelUpdateID = null;
+
+      // get the appropriate ids for the invisible text and button elements that will let us programmatically set the dropdown later
+      switch (modelType) {
+        case "Hypernetwork":
+          modelNameID = "hn_modelpreview_xd_update_sd_model_text";
+          modelUpdateID = "hn_modelpreview_xd_update_sd_model";
+        break;
+        case "Lora":
+          modelNameID = "lo_modelpreview_xd_update_sd_model_text";
+          modelUpdateID = "lo_modelpreview_xd_update_sd_model";
+        break;
+        case "LyCORIS":
+          modelNameID = "ly_modelpreview_xd_update_sd_model_text";
+          modelUpdateID = "ly_modelpreview_xd_update_sd_model";
+        break;
+        case "Embeddings":
+          modelNameID = "em_modelpreview_xd_update_sd_model_text";
+          modelUpdateID = "em_modelpreview_xd_update_sd_model";
+        break;
+        case "Checkpoints":
+          modelNameID = "cp_modelpreview_xd_update_sd_model_text";
+          modelUpdateID = "cp_modelpreview_xd_update_sd_model";
+        break;
+      }
+
+      // get the text area and the button
+      let modelName = gradioApp().querySelector(`#${modelNameID} textarea`);
+      let modelUpdate = gradioApp().querySelector(`#${modelUpdateID}`);
+
+      if(typeof modelName != "undefined" && modelName != null && 
+          typeof modelUpdate != "undefined" && modelUpdate != null) {
+        // set the textarea's value
+        modelName.value = name;
+        
+        // dispatch an event to trigger the gradio update for the textarea
+        const inputEvent = new Event("input");
+        modelName.dispatchEvent(inputEvent);
+        // click the update button to trigger the python code to set the dropdown
+        modelUpdate.click();
+        // click on the model preview tab now that we have selected the right preview
+        setTimeout((event) => {
+          previewTab.click();
+        }, 100);
+      }
+    }
   }
 }
 
