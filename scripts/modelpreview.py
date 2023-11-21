@@ -998,8 +998,9 @@ def on_ui_tabs():
 	with gr.Blocks() as modelpreview_interface:
 
 		limitHeight = shared.opts.model_preview_xd_limit_sizing
+		columnView = shared.opts.model_preview_xd_column_view
 
-		gr.HTML(elem_id='modelpreview_xd_setting', value='<script id="modelpreview_xd_setting_json" type="application/json">{ "LimitSize": ' + ( "true" if limitHeight else "false" ) + ' }</script>', visible=False)
+		gr.HTML(elem_id='modelpreview_xd_setting', value='<script id="modelpreview_xd_setting_json" type="application/json">{ "LimitSize": ' + ( "true" if limitHeight else "false" ) + ', "ColumnView": ' + ( "true" if columnView else "false" ) + ' }</script>', visible=False)
 
 		# create a tab for the checkpoint previews
 		create_tab("Checkpoints", "cp",
@@ -1043,8 +1044,35 @@ def on_ui_tabs():
 
 def on_ui_settings():
 	section = ('model_preview_xd', "Model Preview XD")
-	shared.opts.add_option("model_preview_xd_name_matching", shared.OptionInfo("Loose", "Name matching rule for preview files", gr.Radio, {"choices": ["Loose", "Strict", "Folder", "Index"]}, section=section))
-	shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window (.html preview files are always limited regardless of this setting)", section=section))
+	shared.opts.add_option("model_preview_xd_name_matching", shared.OptionInfo("Loose", "Name matching rule for preview files", gr.Radio, {"choices": ["Loose", "Strict", "Folder", "Index"]}, section=section).info("Requires UI Reload").html("""
+<ul style='margin-left: 1.5em'>
+	<li><strong>Loose</strong> - Use a loose naming scheme for matching preview files. Your preview files must contain the model name somewhere in their file name. If your model is named <strong>'model.ckpt'</strong> your preview files must be named in the following manner:
+		<ul style='margin-left: 2em'>
+			<li>my<strong>model</strong>.html</li>
+			<li><strong>model</strong>_markdown.md</li>
+			<li>trigger_words_for_<strong>model</strong>.txt</li>
+			<li><strong>model</strong>-image.webp</li>
+			<li><strong>model</strong>.preview.png</li>
+			<li>my3D<strong>model</strong>.jpg</li>
+			<li><strong>model</strong>ling.jpeg</li>
+		</ul>
+	</li>
+	<li><strong>Strict</strong> - Use a strict naming scheme for matching preview files. If your model is named <strong>'model.ckpt'</strong> your preview files must be named in the following manner:
+		<ul style='margin-left: 2em'>
+			<li><strong>model</strong>.html</li>
+			<li><strong>model</strong>.md</li>
+			<li><strong>model</strong>.txt</li>
+			<li><strong>model</strong>.webp</li>
+			<li><strong>model</strong>.preview.png</li>
+			<li><strong>model</strong>.3.jpg</li>
+			<li><strong>model</strong>.preview.4.jpeg</li>
+		</ul>
+	</li>
+	<li><strong>Folder</strong> - Use folder name matching. Will look for a folder within your model directory that matches your model's name (case sensitive) and will show any preview files found within that folder or any subfolders of that folder. If your model is named <strong>'mymodel.ckpt'</strong> all preview files located in <strong>'/mymodel/'</strong> will be shown.</li>
+	<li><strong>Index</strong> - If a folder contains a file <strong>'index.txt'</strong> that lists model names, any preview files in that folder regardless of name will be associated with each model in the index file. This allows you to share preview files among a number of models. This matching mode will also match any file named similar to the <strong>'Strict'</strong> matching mode to allow you to still specify preview files for specific models.</li>
+</ul>"""))
+	shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window", section=section).info(".html preview files are always limited regardless of this setting. Requires UI Reload"))
+	shared.opts.add_option("model_preview_xd_column_view", shared.OptionInfo(False, "Column view", section=section).info("This is only recommended if you use .txt files. Left column will have model select, .txt and .prompt preview data. Right column will have preview images and .md preview data, or .civitai.info preview data or .html preview data. Requires UI Reload"))
 
 script_callbacks.on_ui_settings(on_ui_settings)
 script_callbacks.on_ui_tabs(on_ui_tabs)

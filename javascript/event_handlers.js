@@ -59,6 +59,9 @@ onUiUpdate(function() {
     if (settingsJSON.LimitSize) {
       tabEl.setAttribute('limit-height', '');
     }
+    if (settingsJSON.ColumnView) {
+      tabEl.setAttribute('column-view', '');
+    }
   }
 
   // Get the select element for the SD model checkpoint
@@ -85,79 +88,12 @@ onUiUpdate(function() {
     }
   }
 
-  /* ################### v DEPRECATED v ############################ */
-
-  // Get the select element for the SD model checkpoint
-  const selectHypernetworkElement = gradioApp().querySelector('#setting_sd_hypernetwork select');
-  // Check if the element exists and is not null
-  if(typeof selectHypernetworkElement != "undefined" && selectHypernetworkElement != null) {
-    // Get the select element for the preview model list
-    const selectPreviewModelElement = gradioApp().querySelector('#hn_mp2_preview_model_list select');
-    // Only register a new event if you havent already
-    if (selectPreviewModelElement != "undefined" && selectPreviewModelElement != null && selectHypernetworkElement.getAttribute('md_preview_listener') !== 'true') {
-      // Set this attribute to true so we dont set the same listener again
-      selectHypernetworkElement.setAttribute('md_preview_listener', 'true');
-      // Add an event handler that will update the select with the new value if someone changes the checkpoint
-      selectHypernetworkElement.addEventListener('change', (event) => setSelectValue(selectPreviewModelElement, selectHypernetworkElement));
-      // Check if the element exists, is not null, but its value is not set
-      if(typeof selectPreviewModelElement != "undefined" && selectPreviewModelElement != null &&
-        (typeof selectPreviewModelElement.value == "undefined" || selectPreviewModelElement.value == null ||
-        selectPreviewModelElement.value == "")) {
-        // Set the value after 1000ms
-        setTimeout((event) => {
-          setSelectValue(selectPreviewModelElement, selectHypernetworkElement);
-        }, 500);
-      }
-    }
-  }
-
-  // Sync the refresh hypernetworks list button
-  registerClickEvents(gradioApp().querySelector('#refresh_sd_hypernetwork'), ['#hn_modelpreview_xd_refresh_sd_model']);
-
-  // Sync the refresh lora model list buttons
-  gradioApp().querySelectorAll('#img2img_script_container button, #txt2img_script_container button').forEach(function(button) {
-    if(button.innerHTML === 'Refresh models') {
-      registerClickEvents(button, ['#lo_modelpreview_xd_refresh_sd_model']);
-    }
-  });
-  
-  /* ################### ^ DEPRECATED ^ ############################ */
-
   // Sync the refresh main model list button
   registerClickEvents(gradioApp().querySelector('#refresh_sd_model_checkpoint'), ['#cp_modelpreview_xd_refresh_sd_model','#lo_modelpreview_xd_refresh_sd_model','#ly_modelpreview_xd_refresh_sd_model','#hn_modelpreview_xd_refresh_sd_model','#em_modelpreview_xd_refresh_sd_model']);
 
   // Sync the new refresh extra network buttons to this extension
   registerClickEvents(gradioApp().querySelector('#txt2img_extra_refresh'), ['#cp_modelpreview_xd_refresh_sd_model','#lo_modelpreview_xd_refresh_sd_model','#ly_modelpreview_xd_refresh_sd_model','#hn_modelpreview_xd_refresh_sd_model','#em_modelpreview_xd_refresh_sd_model']);
   registerClickEvents(gradioApp().querySelector('#img2img_extra_refresh'), ['#cp_modelpreview_xd_refresh_sd_model','#lo_modelpreview_xd_refresh_sd_model','#ly_modelpreview_xd_refresh_sd_model','#hn_modelpreview_xd_refresh_sd_model','#em_modelpreview_xd_refresh_sd_model']);
-
-  // Find the radio buttons used in the setting page and add a tooltip to them
-  let name_matching_setting = gradioApp().querySelector("#settings_model_preview_xd #setting_model_preview_xd_name_matching .gr-input-label:not([title])")
-  if (typeof name_matching_setting != "undefined" && name_matching_setting != null) {
-    // Get the span from the button that contains the text
-    let labelText = name_matching_setting.querySelector("span");
-    if(typeof labelText != "undefined" && labelText != null && typeof labelText.innerText != "undefined" && labelText.innerText != null) {
-      // Depending on the label text, choose an appropriate tooltip
-      let title = "";
-      switch (labelText.innerText) {
-        case "Loose":
-          title = "Use a loose naming scheme for matching preview files. Your preview files must contain the model name somewhere in their file name. If your model is named 'model.ckpt' your preview files must be named in the following manner:\n • mymodel.html\n • model_markdown.md\n • trigger_words_for_model.txt\n • model-image.webp\n • model.preview.png\n • my3Dmodel.jpg\n • modelling.jpeg";
-        break;
-        case "Strict":
-          title = "Use a strict naming scheme for matching preview files. If your model is named 'model.ckpt' your preview files must be named in the following manner:\n • model.html\n • model.md\n • model.txt\n • model.webp\n • model.preview.png\n • model.3.jpg\n • model.preview.4.jpeg";
-        break;
-        case "Folder":
-          title = "Use folder name matching. Will look for a folder within your model directory that matches your model's name (case sensitive) and will show any preview files found within that folder or any subfolders of that folder. If your model is named 'mymodel.ckpt' all preview files located in '/mymodel/' will be shown.";
-        break;
-        case "Index":
-          title = "If a folder contains a file 'index.txt' that lists model names, any preview files in that folder regardless of name will be associated with each model in the index file. This allows you to share preview files among a number of models. This matching mode will also match any file named similar to the 'Strict' matching mode to allow you to still specify preview files for specific models.";
-        break;
-      }
-      if (title != "") {
-        // add the tooltip to the label
-        name_matching_setting.setAttribute("title", title);
-      }
-    }
-  }
 
   // get the main tabs and specifically the button to switch to the preview tab
   let tabs = gradioApp().querySelectorAll("#tabs > div:first-of-type button");

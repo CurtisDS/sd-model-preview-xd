@@ -115,12 +115,50 @@ div.main > div.wrap > div.contain {
 	position: absolute;
 	height: 100%;
 	flex-wrap: nowrap;
+	display: grid;
+	grid-template-rows: min-content auto;
+	grid-template-columns: auto;
 }
 
 #tab_modelpreview_xd_interface .footer-tags {
 	font-size: 85%;
 	opacity: 0.85;
 	border-top: 2px solid #e5e7eb;
+}
+
+/* column view styling */
+#tab_modelpreview_xd_interface[column-view] .model_preview_xd_tab > div {
+	display: grid;
+	grid-template-rows: auto auto 1fr min-content auto min-content;
+	grid-template-columns: minmax(min-content, 600px) minmax(210px, auto);
+}
+
+#tab_modelpreview_xd_interface[column-view] .modelpreview_xd_control_row {
+	/* div 1 - model select */
+	grid-area: 1 / 1 / span 1 / span 1;
+}
+
+#tab_modelpreview_xd_interface[column-view] .modelpreview_xd_prompts_row {
+	/* div 3 .prompts */
+	grid-area: 2 / 1 / span 1 / span 1;
+}
+#tab_modelpreview_xd_interface[column-view] .modelpreview_xd_notes_row {
+	/* div 4 - .txt */
+	grid-area: 3 / 1 / span 2 / span 1;
+}
+
+#tab_modelpreview_xd_interface[column-view] .modelpreview_xd_html_row {
+	/* div 5 - preview images and .md or civitai.info or .html */
+	grid-area: 1 / 2 / span 4 / span 1;
+}
+
+#tab_modelpreview_xd_interface[column-view] .modelpreview_xd_markdown_div {
+	 flex:1000; 
+}
+
+#tab_modelpreview_xd_interface[column-view] .modelpreview_xd_tags_row {
+	/* div 6 - .tags */
+	grid-area: 5 / 1 / span 1 / span 2;
 }
 
 /* Prompt file style */
