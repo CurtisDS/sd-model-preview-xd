@@ -3,11 +3,15 @@ import os
 import os.path
 import re
 import urllib
+import requests
 import gradio as gr # type: ignore
-from modules import script_callbacks, sd_models, shared, sd_hijack, images # type: ignore
+from modules import script_callbacks, sd_models, shared, sd_hijack, images, scripts # type: ignore
+current_extension_directory = scripts.basedir()
 from PIL import Image
 import base64
 import csv
+from io import BytesIO
+from lxml.html.clean import Cleaner
 
 import importlib.util
 
@@ -56,6 +60,32 @@ def import_lycoris_module():
 			pass
 
 	return None
+
+# define a global Cleaner instance with specific options for sanitization
+cleaner = Cleaner(
+    safe_attrs_only=True,  # Only allow safe attributes
+    host_whitelist=set(['www.youtube.com'])
+)
+
+def sanitize_html(html_content):
+    # check if the HTML content is empty, if so we dont have to do anything, return an empty string
+    if html_content is None or not html_content.strip():
+        return ""
+
+    # check if the entire HTML string is surrounded in comment tags (This is done by some civitai extensions)
+    if html_content.strip().startswith('<!--') and html_content.strip().endswith('-->'):
+        # Remove the comment tags
+        html_content = html_content.strip()[4:-3].strip()
+
+    try:
+        # clean the HTML content using the global Cleaner instance
+        cleaned_html = cleaner.clean_html(html_content)
+    except Exception as e:
+        # if there is an error cleaning the HTML, return "Unable to parse HTML"
+        return "Unable to parse HTML"
+
+	# return the cleaned HTML
+    return cleaned_html
 
 # try and get the lora module
 additional_networks = import_lora_module()
@@ -378,6 +408,81 @@ def create_html_iframe(file, is_in_a1111_dir):
 			html_code = f'<iframe src="data:text/html;charset=UTF-8;base64,{html_data}"></iframe>'
 	return html_code
 
+def extract_civitai_image_key(url):
+    pattern = r"https?://(?:image(?:cache)?\.civitai\.com)/xG1nkqKTMzGDvpLrqFT7WA/([a-f0-9-]+)"
+    match = re.match(pattern, url)
+    if match:
+        return match.group(1)
+    return None
+
+def convert_image_to_base64(url):	
+	# Get the image key from the URL
+	image_key = extract_civitai_image_key(url)
+
+	if image_key is None:
+		# Can't find the image key, the given url isn't in an expected form, just return the input URL
+		print(f"does not have key")
+		return url
+
+	# Construct the cache directory path
+	cache_directory = os.path.join(current_extension_directory, 'civit_cache')
+	
+	# Check if the cache directory exists, if not, create it
+	if not os.path.exists(cache_directory):
+		os.makedirs(cache_directory)
+	
+	# Construct the image path within the cache directory
+	image_path = os.path.join(cache_directory, image_key)
+	
+	# Check if the image file already exists in the cache directory
+	if os.path.isfile(image_path):
+		# If it exists, read the base64 data from the file
+		with open(image_path, "r") as f:
+			base64_data_uri = f.read()
+		f.close()
+		# Return the cached uri
+		print("found image")
+		return base64_data_uri
+	else:
+		# If the image file doesn't exist in the cache directory, download it
+		response = requests.get(url)
+
+		# Check if the request was successful
+		if response.status_code == 200:
+			image_data = response.content
+		else:
+			# If not successful, return the input URL
+			print("no download")
+			return url
+
+		try:
+			# Attempt to open the image using PIL
+			image = Image.open(BytesIO(image_data))
+			# Encode the image data to base64
+			base64_image = base64.b64encode(image_data).decode('utf-8')
+		except Image.UnidentifiedImageError:
+			# If the image format is not recognized, return the input URL
+			print("format err")
+			return url
+
+		# Determine the image format
+		if image.format:
+			image_format = image.format
+		else:
+			image_format = "PNG"
+
+		# Construct the base64 data URI
+		base64_data_uri = f"data:image/{image_format};base64,{base64_image}"
+
+		# Write the base64 data to a file in the cache directory
+		with open(image_path, "w") as f:
+			f.write(base64_data_uri)
+		f.close
+
+		print(f"SD Model Preview caching {url} to {image_path}")
+
+		return base64_data_uri
+
 def create_civitai_info_html(file):
 	# initialize the info object
 	data = {}
@@ -387,6 +492,11 @@ def create_civitai_info_html(file):
 		with open(file, 'r') as f:
 			data = json.load(f)
 		f.close()
+
+	# Sanitize the HTML content of the description properties
+	data['description'] = sanitize_html(data.get('description', ''))
+	if 'model' in data:
+		data['model']['description'] = sanitize_html(data['model'].get('description', ''))
 
 	# build the html
 	civitai_info_html = [f"""<div class='civitai-info'>
@@ -402,7 +512,7 @@ def create_civitai_info_html(file):
     </ul>
 	<details open>
 		<summary><strong>Description:</strong></summary>
-    	<div id="ci-description">{data.get('description','')}</div>
+    	<div id="ci-description" class="description">{data.get('description','')}</div>
 	</details>
 	<details>
   		<summary><strong>Stats:</strong></summary>
@@ -419,6 +529,7 @@ def create_civitai_info_html(file):
 			<li><strong>Type:</strong> <span id="ci-modelType">{data.get('model',{}).get('type','')}</span></li>
 			<li><strong>NSFW:</strong> <span id="ci-modelNsfw">{data.get('model',{}).get('nsfw','')}</span></li>
 			<li><strong>POI:</strong> <span id="ci-modelPoi">{data.get('model',{}).get('poi','')}</span></li>
+			<li><strong>Description:</strong> <div id="ci-modelDescription" class="description">{data.get('model',{}).get('description','')}</div></li>
 		</ul>
 	</details>
 	<details>
@@ -457,8 +568,10 @@ def create_civitai_info_html(file):
 		# Initialize html meta list as not found incase its empty
 		meta_list_items = "<li>No Meta Data Found</li>"
 
+		image_url = convert_image_to_base64(image.get('url',''))
+
 		civitai_info_html.append(f"""<div class='img-prop-container'><div class='img-container'>
-			<img id="ci-image-{i}" src="{image.get('url','')}" onclick="imageZoomIn(event)" />
+			<img id="ci-image-{i}" src="{image_url}" onclick="imageZoomIn(event)" />
 			""")
 
 		# if there is prompt/meta data

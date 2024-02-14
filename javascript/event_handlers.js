@@ -169,6 +169,28 @@ onUiUpdate(function() {
       card.setAttribute("preview-hijack", true);
     });
   }
+
+  //##################### Hide Subdir Buttons That Start With '_' ##########################
+
+   // Find all divs with class "extra-network-subdirs"
+   var subdirDivs = document.querySelectorAll(".extra-network-subdirs");
+
+   // Iterate through each div
+   subdirDivs.forEach(function(div) {
+       // Find all buttons within the current div
+       var buttons = div.querySelectorAll("button");
+
+       // Iterate through each button
+       buttons.forEach(function(button) {
+           // Check if the button text starts with "_"
+           if (button.textContent.trim().startsWith("_")) {
+               // Hide the button
+               button.style.display = "none";
+           }
+       });
+   });
+
+   //########################################################################################
 })
 
 function doCardClick(event, name, modelType) {

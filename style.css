@@ -32,6 +32,16 @@ div.main > div.wrap > div.contain {
 	padding-bottom: 1em; 
 }
 
+#tab_modelpreview_xd_interface .civitai-info .description {
+	margin-left: 1.5em;
+	white-space: break-spaces;
+}
+
+#tab_modelpreview_xd_interface .civitai-info .description iframe {
+	width: revert-layer;
+	height: revert-layer;
+}
+
 #tab_modelpreview_xd_interface .civitai-info ul li {
 	list-style-type: none;
 	margin-bottom: 0;
