@@ -1,3 +1,4 @@
+import html
 import json
 import os
 import os.path
@@ -115,7 +116,7 @@ def natural_order_number(s):
 	return [int(x) if x.isdigit() else x.lower() for x in re.split('(\d+)', s)]
 
 def clean_modelname(modelname):
-	# remove the extension and the hash if it exists at the end of the model name (this is added by a1111) and 
+	# remove the extension and the hash if it exists at the end of the model name (this is added by a1111) and
 	# if the model name contains a path (which happens when a checkpoint is in a subdirectory) just return the model name portion
 	return re.sub(r"(?i)(\.pt|\.bin|\.ckpt|\.safetensors)?( \[[a-f0-9]{10,12}\]|\([a-f0-9]{10,12}\))?$", "", modelname).split("\\")[-1].split("/")[-1]
 
@@ -218,7 +219,7 @@ def list_all_hypernetworks():
 	hypernetwork_choices = sorted(list, key=natural_order_number)
 	search_for_tags(hypernetwork_choices, tags["hypernetworks"], get_hypernetwork_dirs())
 	return hypernetwork_choices
-	
+
 def list_all_loras():
 	global lora_choices, additional_networks, additional_networks_builtin
 	# create an empty set for lora models
@@ -305,8 +306,8 @@ def filter_choices(choices, filter, tags_obj):
 	if filter is not None and filter.strip() != "":
 		# filter the choices based on the provided filter string
 		filter_tags = [tag.strip().lower() for tag in filter.split(",")]
-		filtered_choices = [choice for choice in filtered_choices if 
-							all(tag in tags_obj.get(choice, '').lower() for tag in filter_tags) or 
+		filtered_choices = [choice for choice in filtered_choices if
+							all(tag in tags_obj.get(choice, '').lower() for tag in filter_tags) or
 							all(tag in choice.lower() for tag in filter_tags)]
 	return filtered_choices
 
@@ -356,7 +357,7 @@ def update_lycorii(name):
 	return new_choice, *show_lycoris_preview(new_choice)
 
 def find_choice(list, name):
-	# clean the name from the list and match a choice to the model 
+	# clean the name from the list and match a choice to the model
 	# TODO there could be name collisions here that may need to be handled in the future.
 	for choice in list:
 		cleaned_name = clean_modelname(choice)
@@ -387,6 +388,13 @@ def create_civitai_info_html(file):
 		with open(file, 'r') as f:
 			data = json.load(f)
 		f.close()
+
+	# Civitai descriptions are wrapped in comments. First strip any comment
+	# markers, then HTML-escape so we aren't executing arbitrary HTML, then
+	# finally convert the newlines into breaks.
+	data['description'] = html.escape(data.get('description', '').replace('<!--', '').replace('-->', '')).replace('\n', '<br>')
+	if 'model' in data:
+		data['model']['description'] = html.escape(data['model'].get('description', '').replace('<!--', '').replace('-->', '')).replace('\n', '<br>')
 
 	# build the html
 	civitai_info_html = [f"""<div class='civitai-info'>
@@ -419,6 +427,7 @@ def create_civitai_info_html(file):
 			<li><strong>Type:</strong> <span id="ci-modelType">{data.get('model',{}).get('type','')}</span></li>
 			<li><strong>NSFW:</strong> <span id="ci-modelNsfw">{data.get('model',{}).get('nsfw','')}</span></li>
 			<li><strong>POI:</strong> <span id="ci-modelPoi">{data.get('model',{}).get('poi','')}</span></li>
+			<li><strong>Description:</strong> <span id="ci-modelDescription">{data.get('model',{}).get('description','')}</span></li>
 		</ul>
 	</details>
 	<details>
@@ -439,7 +448,7 @@ def create_civitai_info_html(file):
 				<li><strong>Pickle Scan Message:</strong> <span id="ci-pickleScanMessage-{i}">{data_file.get('pickleScanMessage','')}</span></li>
 				<li><strong>Virus Scan Result:</strong> <span id="ci-virusScanResult-{i}">{data_file.get('virusScanResult','')}</span></li>
 				<li><strong>Scanned At:</strong> <span id="ci-scannedAt-{i}">{data_file.get('scannedAt','')}</span></li>
-				<li><strong>Download URL:</strong> <a id="ci-downloadUrl-{i}" href="{data_file.get('downloadUrl','')}" target="_blank">{data_file.get('downloadUrl','')}</a></li> 
+				<li><strong>Download URL:</strong> <a id="ci-downloadUrl-{i}" href="{data_file.get('downloadUrl','')}" target="_blank">{data_file.get('downloadUrl','')}</a></li>
 			</ul>
 		</details>
 		""")
@@ -448,7 +457,7 @@ def create_civitai_info_html(file):
 		<br>
 		<div id="ci-images" class="img-container-set">
 		""")
-	
+
 	for i, image in enumerate(data.get('images',[])):
 
 		# Get the meta data object from the image
@@ -590,7 +599,7 @@ def search_and_display_previews(model_name, paths):
 		txt_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + txt_ext_pattern + r')$')
 		prompts_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + prompts_ext_pattern + r')$')
 		img_pattern = re.compile(r'^.*' + re.escape(model_name) + r'.*(?i:\.' + img_ext_pattern + r')$')
-	
+
 	# an array to hold the image html code
 	html_code_list = []
 	# if a text file is found
@@ -692,11 +701,11 @@ def search_and_display_previews(model_name, paths):
 					if txt_pattern.match(filename):
 						# there can only be one text file, if one was already found it is replaced
 						found_txt_file = file_path
-					
+
 					# if this file was an image file append the image to the html code list
 					if img_file is not None:
 						html_code_list.append(create_html_img(img_file, is_in_a1111_dir))
-	
+
 	# if a generic preview file was found but not a specific one, use the generic one
 	if html_file_frame is None and generic_html_file_frame is not None:
 		html_file_frame = generic_html_file_frame
@@ -834,13 +843,13 @@ def show_lycoris_preview(modelname=None):
 def show_preview(modelname, paths, tags_key):
 	if modelname is None or len(modelname) == 0 or paths is None or len(paths) == 0:
 		txt_update = gr.Textbox.update(value=None, visible=False)
-		md_update = gr.Textbox.update(value=None, visible=False)		
+		md_update = gr.Textbox.update(value=None, visible=False)
 		prompts_list_update = gr.CheckboxGroup.update(visible=False)
 		prompts_button_update = gr.Button.update(visible=False)
-		html_update = gr.HTML.update(value='', visible=False)		
+		html_update = gr.HTML.update(value='', visible=False)
 		tags_html = gr.HTML.update(value='', visible=False)
 		return prompts_list_update, prompts_button_update, txt_update, md_update, html_update, tags_html
-	
+
 	# remove the hash if exists, the extension, and if the string is a path just return the file name
 	name = clean_modelname(modelname)
 	# get the preview data
@@ -856,7 +865,7 @@ def show_preview(modelname, paths, tags_key):
 		txt_update = gr.Textbox.update(value=output_text, visible=True)
 	else:
 		txt_update = gr.Textbox.update(value=None, visible=False)
-	
+
 	# if a markdown file was found update the gradio markdown element
 	if found_md_file:
 		output_text = ""
@@ -1039,7 +1048,7 @@ def on_ui_tabs():
 					   filter_lycorii,
 					   refresh_lycorii,
 					   update_lycorii)
-	
+
 	return (modelpreview_interface, "Model Pre​views", "modelpreview_xd_interface"),
 
 def on_ui_settings():
