@@ -415,13 +415,16 @@ def extract_civitai_image_key(url):
         return match.group(1)
     return None
 
-def convert_image_to_base64(url):	
+def convert_image_to_base64(url):
+	# Only cache the image if setting is on
+	if not shared.opts.model_preview_xd_cache_images_civitai_info:
+		return url
+
 	# Get the image key from the URL
 	image_key = extract_civitai_image_key(url)
 
 	if image_key is None:
 		# Can't find the image key, the given url isn't in an expected form, just return the input URL
-		print(f"does not have key")
 		return url
 
 	# Construct the cache directory path
@@ -441,7 +444,6 @@ def convert_image_to_base64(url):
 			base64_data_uri = f.read()
 		f.close()
 		# Return the cached uri
-		print("found image")
 		return base64_data_uri
 	else:
 		# If the image file doesn't exist in the cache directory, download it
@@ -452,7 +454,6 @@ def convert_image_to_base64(url):
 			image_data = response.content
 		else:
 			# If not successful, return the input URL
-			print("no download")
 			return url
 
 		try:
@@ -462,7 +463,6 @@ def convert_image_to_base64(url):
 			base64_image = base64.b64encode(image_data).decode('utf-8')
 		except Image.UnidentifiedImageError:
 			# If the image format is not recognized, return the input URL
-			print("format err")
 			return url
 
 		# Determine the image format
@@ -479,7 +479,7 @@ def convert_image_to_base64(url):
 			f.write(base64_data_uri)
 		f.close
 
-		print(f"SD Model Preview caching {url} to {image_path}")
+		print(f"SD Model Preview caching image {image_path}")
 
 		return base64_data_uri
 
@@ -1186,6 +1186,7 @@ def on_ui_settings():
 </ul>"""))
 	shared.opts.add_option("model_preview_xd_limit_sizing", shared.OptionInfo(True, "Limit the height of previews to the height of the browser window", section=section).info(".html preview files are always limited regardless of this setting. Requires UI Reload"))
 	shared.opts.add_option("model_preview_xd_column_view", shared.OptionInfo(False, "Column view", section=section).info("This is only recommended if you use .txt files. Left column will have model select, .txt and .prompt preview data. Right column will have preview images and .md preview data, or .civitai.info preview data or .html preview data. Requires UI Reload"))
+	shared.opts.add_option("model_preview_xd_cache_images_civitai_info", shared.OptionInfo(False, "Cache images from .civitai.info previews", section=section).info("Saves files to extension folder."))
 
 script_callbacks.on_ui_settings(on_ui_settings)
 script_callbacks.on_ui_tabs(on_ui_tabs)
