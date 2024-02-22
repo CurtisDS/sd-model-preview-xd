@@ -99,7 +99,7 @@ onUiUpdate(function() {
   let tabs = gradioApp().querySelectorAll("#tabs > div:first-of-type button");
   if(typeof tabs != "undefined" && tabs != null && tabs.length > 0) {
     tabs.forEach(tab => {
-      if(tab.innerText == "Model Pre​views") {
+      if(tab.innerText == "Model Previews") {
         previewTab = tab;
       }
     });
