@@ -1153,7 +1153,7 @@ def on_ui_tabs():
 					   refresh_lycorii,
 					   update_lycorii)
 	
-	return (modelpreview_interface, "Model Pre​views", "modelpreview_xd_interface"),
+	return (modelpreview_interface, "Model​ Previews", "modelpreview_xd_interface"),
 
 def on_ui_settings():
 	section = ('model_preview_xd', "Model Preview XD")
