@@ -11,7 +11,7 @@ from PIL import Image
 import base64
 import csv
 from io import BytesIO
-from lxml.html.clean import Cleaner
+from lxml_html_clean.clean import Cleaner
 
 import importlib.util
 

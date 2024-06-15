@@ -172,8 +172,8 @@ onUiUpdate(function() {
 
   //##################### Hide Subdir Buttons That Start With '_' ##########################
 
-   // Find all divs with class "extra-network-subdirs"
-   var subdirDivs = document.querySelectorAll(".extra-network-subdirs");
+   // Find all divs with class "extra-network-dirs"
+   var subdirDivs = document.querySelectorAll(".extra-network-dirs");
 
    // Iterate through each div
    subdirDivs.forEach(function(div) {
