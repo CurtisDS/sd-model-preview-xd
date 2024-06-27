@@ -190,6 +190,19 @@ onUiUpdate(function() {
        });
    });
 
+   // ################### add dark theme to iframe url params ###############################
+
+   const urlParams = new URLSearchParams(window.location.search);
+   const theme = urlParams.get('__theme');
+   if (theme) {
+    const iframes = document.querySelectorAll('.modelpreview_xd_html_row .sdmpxd-iframe');
+    iframes.forEach((iframe) => {
+      let iframeSrc = new URL(iframe.src);
+      iframeSrc.searchParams.set('__theme', theme);
+      iframe.src = iframeSrc.toString();
+    });
+   }
+    
    //########################################################################################
 })
 

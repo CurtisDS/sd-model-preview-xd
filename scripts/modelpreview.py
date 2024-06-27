@@ -399,13 +399,13 @@ def create_html_iframe(file, is_in_a1111_dir):
 		# escape special URL characters from the filename
 		encoded_file_path = urllib.parse.quote(file, safe='/:\\')
 		# create the iframe html code
-		html_code = f'<iframe src="file={encoded_file_path}"></iframe>'
+		html_code = f'<iframe class="sdmpxd-iframe" src="file={encoded_file_path}"></iframe>'
 	else:
 		html_code = ""
 		# the html file isnt located in the a1111 directory so load the html file as a base64 string instead of linking to it
 		with open(file, 'rb') as html_file:
 			html_data = base64.b64encode(html_file.read()).decode()
-			html_code = f'<iframe src="data:text/html;charset=UTF-8;base64,{html_data}"></iframe>'
+			html_code = f'<iframe class="sdmpxd-iframe" src="data:text/html;charset=UTF-8;base64,{html_data}"></iframe>'
 	return html_code
 
 def extract_civitai_image_key(url):
