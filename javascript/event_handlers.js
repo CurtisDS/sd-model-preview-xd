@@ -199,7 +199,9 @@ onUiUpdate(function() {
     iframes.forEach((iframe) => {
       let iframeSrc = new URL(iframe.src);
       iframeSrc.searchParams.set('__theme', theme);
-      iframe.src = iframeSrc.toString();
+      if(iframe.src != iframeSrc.toString()) {
+        iframe.src = iframeSrc.toString();
+      }
     });
    }
     
