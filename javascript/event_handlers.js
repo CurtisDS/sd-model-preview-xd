@@ -249,45 +249,58 @@ function doCardClick(event, name, modelType) {
       
       let modelNameID = null;
       let modelUpdateID = null;
+      let modelListID = null;
 
       // get the appropriate ids for the invisible text and button elements that will let us programmatically set the dropdown later
       switch (modelType) {
         case "Hypernetwork":
           modelNameID = "hn_modelpreview_xd_update_sd_model_text";
           modelUpdateID = "hn_modelpreview_xd_update_sd_model";
+          modelListID = "hn_mp2_preview_model_list";
         break;
         case "Lora":
           modelNameID = "lo_modelpreview_xd_update_sd_model_text";
           modelUpdateID = "lo_modelpreview_xd_update_sd_model";
+          modelListID = "lo_mp2_preview_model_list";
         break;
         case "LyCORIS":
           modelNameID = "ly_modelpreview_xd_update_sd_model_text";
           modelUpdateID = "ly_modelpreview_xd_update_sd_model";
+          modelListID = "ly_mp2_preview_model_list";
         break;
         case "Embeddings":
           modelNameID = "em_modelpreview_xd_update_sd_model_text";
           modelUpdateID = "em_modelpreview_xd_update_sd_model";
+          modelListID = "em_mp2_preview_model_list";
         break;
         case "Checkpoints":
           modelNameID = "cp_modelpreview_xd_update_sd_model_text";
           modelUpdateID = "cp_modelpreview_xd_update_sd_model";
+          modelListID = "cp_mp2_preview_model_list";
         break;
       }
 
       // get the text area and the button
       let modelName = gradioApp().querySelector(`#${modelNameID} textarea`);
       let modelUpdate = gradioApp().querySelector(`#${modelUpdateID}`);
+      let modelList = gradioApp().querySelector(`#${modelListID} input`);
 
       if(typeof modelName != "undefined" && modelName != null && 
-          typeof modelUpdate != "undefined" && modelUpdate != null) {
-        // set the textarea's value
-        modelName.value = name;
+          typeof modelUpdate != "undefined" && modelUpdate != null &&
+          typeof modelList != "undefined" && modelList != null) {
         
-        // dispatch an event to trigger the gradio update for the textarea
-        const inputEvent = new Event("input");
-        modelName.dispatchEvent(inputEvent);
-        // click the update button to trigger the python code to set the dropdown
-        modelUpdate.click();
+        // only update the preview if its a different model
+        if(name != mp_cleanModelName(modelList.value)) {
+          // set the textarea's value
+          modelName.value = name;
+          
+          // dispatch an event to trigger the gradio update for the textarea
+          const inputEvent = new Event("input");
+          modelName.dispatchEvent(inputEvent);
+          // click the update button to trigger the python code to set the dropdown
+          modelUpdate.click();
+        }
+        
         // click on the model preview tab now that we have selected the right preview
         setTimeout((event) => {
           previewTab.click();
@@ -295,6 +308,13 @@ function doCardClick(event, name, modelType) {
       }
     }
   }
+}
+
+function mp_cleanModelName(modelname) {
+	// Remove the extension and the hash if it exists at the end of the model name (this is added by a1111)
+	// If the model name contains a path (which happens when a checkpoint is in a subdirectory) just return the model name portion
+	const regex = /(\.pt|\.bin|\.ckpt|\.safetensors)?( \[[a-f0-9]{10,12}\]|\([a-f0-9]{10,12}\))?$/i;
+	return modelname.replace(regex, "").split("\\").pop().split("/").pop();
 }
 
 function metaDataCopy(event) {
