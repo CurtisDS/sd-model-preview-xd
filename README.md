@@ -60,7 +60,9 @@ This extension supports the following model types in the the default directories
 
       ![image](https://github.com/user-attachments/assets/3b68fe31-9898-442a-b286-1d6d2cd2ea66)
 
-      Depending on the size setting for the extra network cards you might not be able to see this button. These are the settings I suggest: ![image](https://github.com/user-attachments/assets/c6cd8e80-d047-4b87-b4c1-740d7349bab2)
+      Depending on the size setting for the extra network cards you might not be able to see this button. These are the settings I suggest:
+
+      ![image](https://github.com/user-attachments/assets/c6cd8e80-d047-4b87-b4c1-740d7349bab2)
 
 6. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
       
