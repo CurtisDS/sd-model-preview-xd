@@ -58,13 +58,15 @@ This extension supports the following model types in the the default directories
 
 4. <a name="tips-4"></a>You can now be linked directly to the preview files of a model by clicking on the `℗` in the extra networks thumbnail cards.
 
-      ![image](https://github.com/CurtisDS/sd-model-preview-xd/assets/20732674/34c3036e-f269-47e3-8709-e27b920a80c4)
+      ![image](https://github.com/user-attachments/assets/3b68fe31-9898-442a-b286-1d6d2cd2ea66)
 
-5. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
+      Depending on the size setting for the extra network cards you might not be able to see this button. These are the settings I suggest: ![image](https://github.com/user-attachments/assets/c6cd8e80-d047-4b87-b4c1-740d7349bab2)
+
+6. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
       
       ![screenshot of difference between limit height and not limit height](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd-height-limit.gif)
    
-6. <a name="tips-6"></a>If the image previews are too small or too big for you, add the following css to your `user.css` file (If the file doesn't exist then create it in the root of your Automatic1111 folder). Edit the width and height values accordingly:
+7. <a name="tips-6"></a>If the image previews are too small or too big for you, add the following css to your `user.css` file (If the file doesn't exist then create it in the root of your Automatic1111 folder). Edit the width and height values accordingly:
 
       ```css
       /* custom CSS for sd-model-preview-xd preview image sizes */
