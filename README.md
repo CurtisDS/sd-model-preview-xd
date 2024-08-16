@@ -216,11 +216,11 @@ Gradio (the software Automatic1111 is built on) doesn't support linking to files
 
 Linking to a file/image using relative paths is slightly different in Markdown vs HTML because of the difference in how they are loaded. Markdown has the relative path resolve from the location of the Automatic1111 install directory where as HTML files will need to have the path be relative from the actual HTML file.... unless you have the HTML outside of the Automatic1111 directory which changes how the HTML file is loaded and also will change where the path is relative from.
 
-A way around this is to link to the file using the webserver that is created by Automatic1111. By default it is located at `http://127.0.0.1:7860`. This webserver serves up all files within the install directory and so will have relative paths be relative to that directory. The webserver doesn't have access to anything outside of the install directory so you will get an error if you try linking to any such file.
+A quick way to avoid complications is to link to the file using the webserver that is created by Automatic1111. By default it is located at `http://127.0.0.1:7860`. This webserver serves up all files within the install directory and so will have relative paths be relative to that directory. The webserver doesn't have access to anything outside of the install directory so you will get an error if you try linking to any such file.
 
 You will also have to use a special URI to reference that you want to use a local file. You need to include `file=` before the file path.
 
-So in conclusion if you would like to link to a file or image from within a Markdown or HTML file use this syntax with the path always being relative from the Automatic install directory:
+So to make it simple if you would like to link to a file or image from within a Markdown or HTML file use this syntax with the path always being relative from the Automatic install directory:
 
 ```html
 <img src="http://127.0.0.1:7860/file=models/Stable-diffusion/image.png">
@@ -229,3 +229,16 @@ So in conclusion if you would like to link to a file or image from within a Mark
 ```markdown
 ![image alt text](http://127.0.0.1:7860/file=models/Stable-diffusion/image.png)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
