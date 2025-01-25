@@ -58,13 +58,17 @@ This extension supports the following model types in the the default directories
 
 4. <a name="tips-4"></a>You can now be linked directly to the preview files of a model by clicking on the `℗` in the extra networks thumbnail cards.
 
-      ![image](https://github.com/CurtisDS/sd-model-preview-xd/assets/20732674/34c3036e-f269-47e3-8709-e27b920a80c4)
+      ![image](https://github.com/user-attachments/assets/3b68fe31-9898-442a-b286-1d6d2cd2ea66)
 
-5. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
+      Depending on the size setting for the extra network cards you might not be able to see this button. These are the settings I suggest:
+
+      ![image](https://github.com/user-attachments/assets/c6cd8e80-d047-4b87-b4c1-740d7349bab2)
+
+6. <a name="tips-5"></a>In the settings for the extension you can turn off the `limit height` setting to change how tall the preview panel can be.
       
       ![screenshot of difference between limit height and not limit height](https://github.com/CurtisDS/sd-model-preview-xd/raw/main/sd-model-preview-xd-height-limit.gif)
    
-6. <a name="tips-6"></a>If the image previews are too small or too big for you, add the following css to your `user.css` file (If the file doesn't exist then create it in the root of your Automatic1111 folder). Edit the width and height values accordingly:
+7. <a name="tips-6"></a>If the image previews are too small or too big for you, add the following css to your `user.css` file (If the file doesn't exist then create it in the root of your Automatic1111 folder). Edit the width and height values accordingly:
 
       ```css
       /* custom CSS for sd-model-preview-xd preview image sizes */
@@ -212,11 +216,11 @@ Gradio (the software Automatic1111 is built on) doesn't support linking to files
 
 Linking to a file/image using relative paths is slightly different in Markdown vs HTML because of the difference in how they are loaded. Markdown has the relative path resolve from the location of the Automatic1111 install directory where as HTML files will need to have the path be relative from the actual HTML file.... unless you have the HTML outside of the Automatic1111 directory which changes how the HTML file is loaded and also will change where the path is relative from.
 
-A way around this is to link to the file using the webserver that is created by Automatic1111. By default it is located at `http://127.0.0.1:7860`. This webserver serves up all files within the install directory and so will have relative paths be relative to that directory. The webserver doesn't have access to anything outside of the install directory so you will get an error if you try linking to any such file.
+A quick way to avoid complications is to link to the file using the webserver that is created by Automatic1111. By default it is located at `http://127.0.0.1:7860`. This webserver serves up all files within the install directory and so will have relative paths be relative to that directory. The webserver doesn't have access to anything outside of the install directory so you will get an error if you try linking to any such file.
 
 You will also have to use a special URI to reference that you want to use a local file. You need to include `file=` before the file path.
 
-So in conclusion if you would like to link to a file or image from within a Markdown or HTML file use this syntax with the path always being relative from the Automatic install directory:
+So to make it simple if you would like to link to a file or image from within a Markdown or HTML file use this syntax with the path always being relative from the Automatic install directory:
 
 ```html
 <img src="http://127.0.0.1:7860/file=models/Stable-diffusion/image.png">
@@ -225,3 +229,16 @@ So in conclusion if you would like to link to a file or image from within a Mark
 ```markdown
 ![image alt text](http://127.0.0.1:7860/file=models/Stable-diffusion/image.png)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
