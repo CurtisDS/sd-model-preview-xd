@@ -5,7 +5,8 @@ import re
 import urllib
 import requests
 import gradio as gr # type: ignore
-from modules import script_callbacks, sd_models, shared, sd_hijack, images, scripts # type: ignore
+from modules import script_callbacks, sd_models, shared, images, scripts # type: ignore
+import modules.textual_inversion.textual_inversion # type: ignore
 current_extension_directory = scripts.basedir()
 from PIL import Image
 import base64
@@ -30,16 +31,21 @@ def import_lora_module():
 
 def import_lora_module_builtin():
 	# import/update the lora module if its available from the builtin extensions
-	try:
-		spec = importlib.util.find_spec('extensions-builtin.Lora.lora')
-		if spec:
-			additional_networks_builtin = importlib.util.module_from_spec(spec)
-			spec.loader.exec_module(additional_networks_builtin)
-		else:
-			additional_networks_builtin = None
-	except:
-		additional_networks_builtin = None
-	return additional_networks_builtin
+
+	possible_lora_modules = [
+		'extensions-builtin.Lora.lora',
+		'extensions-builtin.sd_forge_lora.lora'
+	]
+	for module in possible_lora_modules:
+		try:
+			spec = importlib.util.find_spec(module)
+			if spec:
+				additional_networks_builtin = importlib.util.module_from_spec(spec)
+				spec.loader.exec_module(additional_networks_builtin)
+				return additional_networks_builtin
+		except:
+			return None
+	return None
 
 
 def import_lycoris_module():
@@ -86,6 +92,8 @@ def sanitize_html(html_content):
 
 	# return the cleaned HTML
     return cleaned_html
+
+embedding_db = None
 
 # try and get the lora module
 additional_networks = import_lora_module()
@@ -231,12 +239,15 @@ def list_all_models():
 	return checkpoint_choices
 
 def list_all_embeddings():
-	global embedding_choices
+	global embedding_choices, embedding_db
 	# Embeddings may not have been loaded yet. (Fixes empty embeddings list on startup) -n15g
-	sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
+	if embedding_db is None:
+		embedding_db = modules.textual_inversion.textual_inversion.EmbeddingDatabase()
+		embedding_db.add_embedding_dir(shared.cmd_opts.embeddings_dir)
+	embedding_db.load_textual_inversion_embeddings()
 	# get the list of embeddings
-	list = [x for x in sd_hijack.model_hijack.embedding_db.word_embeddings.keys()]
-	list.extend([x for x in sd_hijack.model_hijack.embedding_db.skipped_embeddings.keys()])
+	list = [x for x in embedding_db.word_embeddings.keys()]
+	list.extend([x for x in embedding_db.skipped_embeddings.keys()])
 	embedding_choices = sorted(list, key=natural_order_number)
 	search_for_tags(embedding_choices, tags["embeddings"], get_embedding_dirs())
 	return embedding_choices
