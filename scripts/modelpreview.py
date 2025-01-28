@@ -1,4 +1,5 @@
 import json
+import inspect
 import os
 import os.path
 import re
@@ -244,7 +245,10 @@ def list_all_embeddings():
 	if embedding_db is None:
 		embedding_db = modules.textual_inversion.textual_inversion.EmbeddingDatabase()
 		embedding_db.add_embedding_dir(shared.cmd_opts.embeddings_dir)
-	embedding_db.load_textual_inversion_embeddings()
+	if "sync_with_sd_model" in inspect.signature(embedding_db.load_textual_inversion_embeddings).parameters:
+		embedding_db.load_textual_inversion_embeddings(sync_with_sd_model=False)
+	else:
+		embedding_db.load_textual_inversion_embeddings()
 	# get the list of embeddings
 	list = [x for x in embedding_db.word_embeddings.keys()]
 	list.extend([x for x in embedding_db.skipped_embeddings.keys()])
