@@ -65,6 +65,10 @@ div.main > div.wrap > div.contain {
 	flex: 1;
 }
 
+#tab_modelpreview_xd_interface[style*="display: block"] {
+	display: grid !important;
+}
+
 #tab_modelpreview_xd_interface code {
 	overflow: auto;
 }
@@ -128,6 +132,10 @@ div.main > div.wrap > div.contain {
 	display: grid;
 	grid-template-rows: min-content auto;
 	grid-template-columns: auto;
+}
+
+#tab_modelpreview_xd_interface[limit-height] .modelpreview_xd_html_row > .modelpreview_xd_flexcolumn_row:has(> .hidden) {
+	grid-template-rows: auto;
 }
 
 #tab_modelpreview_xd_interface .footer-tags {

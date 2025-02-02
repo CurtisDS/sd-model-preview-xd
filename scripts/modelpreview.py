@@ -45,7 +45,7 @@ def import_lora_module_builtin():
 				spec.loader.exec_module(additional_networks_builtin)
 				return additional_networks_builtin
 		except:
-			return None
+			pass
 	return None
 
 
